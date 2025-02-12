@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>因数分解ゲーム</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        #game-area {
+            display: flex;
+            justify-content: space-around;
+            width: 400px;
+            height: 500px;
+            background-color: lightgray;
+            margin: auto;
+            position: relative;
+        }
+        .lane {
+            width: 80px;
+            height: 100%;
+            background: #ccc;
+            border: 1px solid black;
+            position: relative;
+        }
+        .number {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: green;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            font-weight: bold;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        .factor-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>因数分解ゲーム</h1>
+    <h2>スコア: <span id="score">0</span></h2>
+    <div id="game-area">
+        <div class="lane" onclick="selectLane(0)"></div>
+        <div class="lane" onclick="selectLane(1)"></div>
+        <div class="lane" onclick="selectLane(2)"></div>
+        <div class="lane" onclick="selectLane(3)"></div>
+    </div>
+    <div class="buttons">
+        <button class="factor-btn" onclick="divideNumber(2)">2</button>
+        <button class="factor-btn" onclick="divideNumber(3)">3</button>
+        <button class="factor-btn" onclick="divideNumber(5)">5</button>
+        <button class="factor-btn" onclick="divideNumber(7)">7</button>
+    </div>
+    <script>
+        const lanes = document.querySelectorAll(".lane");
+        const numbers = [6, 10, 12, 14, 15, 18, 21, 30, 35, 36, 42, 49];
+        let score = 0;
+        let activeLane = null;
+
+        function updateScore(points) {
+            score += points;
+            document.getElementById("score").innerText = score;
+        }
+
+        function spawnNumber(laneIndex) {
+            const lane = lanes[laneIndex];
+            const num = document.createElement("div");
+            num.classList.add("number");
+            num.innerText = numbers[Math.floor(Math.random() * numbers.length)];
+            num.style.top = "0px";
+            lane.appendChild(num);
+            fallDown(num, laneIndex);
+        }
+
+        function fallDown(num, laneIndex) {
+            let pos = 0;
+            const fallInterval = setInterval(() => {
+                if (pos < 450) {
+                    pos += 0.5;
+                    num.style.top = pos + "px";
+                } else {
+                    clearInterval(fallInterval);
+                    num.remove(); // レーン下部に到達した数字を削除
+                    spawnNumber(laneIndex); // 到達したレーンのみ新しい数字を追加
+                }
+            }, 10);
+        }
+
+        function selectLane(index) {
+            activeLane = index;
+        }
+
+        function divideNumber(factor) {
+            if (activeLane === null) return;
+            const lane = lanes[activeLane];
+            const numElem = lane.querySelector(".number");
+            if (!numElem) return;
+            let num = parseInt(numElem.innerText);
+            if (num % factor === 0) {
+                num /= factor;
+                updateScore(factor);
+                if (num === 1) {
+                    numElem.remove();
+                    spawnNumber(activeLane);
+                } else {
+                    numElem.innerText = num;
+                }
+            } else {
+                updateScore(-factor);
+            }
+            activeLane = null;
+        }
+
+        lanes.forEach((lane, index) => spawnNumber(index));
+    </script>
+</body>
+</html>
