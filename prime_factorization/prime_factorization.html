@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>因数分解ゲーム</title>
+    <link rel="stylesheet" href="prime_factorization.css">
+</head>
+
+<body>
+    <h1>因数分解ゲーム</h1>
+    <h2>スコア: <span id="score">0</span></h2>
+    <div id="game-area">
+        <div class="lane" onclick="selectLane(0)"></div>
+        <div class="lane" onclick="selectLane(1)"></div>
+        <div class="lane" onclick="selectLane(2)"></div>
+        <div class="lane" onclick="selectLane(3)"></div>
+    </div>
+    <div class="buttons">
+        <button class="factor-btn" onclick="divideNumber(2)">2</button>
+        <button class="factor-btn" onclick="divideNumber(3)">3</button>
+        <button class="factor-btn" onclick="divideNumber(5)">5</button>
+        <button class="factor-btn" onclick="divideNumber(7)">7</button>
+    </div>
+    <script src="prime_factorization.js"></script>
+</body>
+
+</html>
