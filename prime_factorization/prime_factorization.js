@@ -5,9 +5,10 @@ const numbers = [6, 10, 12, 14, 15, 18, 21, 30, 35, 36, 42, 49];
 
 let score = 0;       // スコア管理
 let activeLane = null; // 現在選択中のレーン
-let fallSpeed = 0.5; // 数字の落下速度
-let spawnInterval = 4000; // 数字の生成間隔(ms)
+let fallSpeed = 2; // 数字の落下速度
+let spawnInterval = 2000; // 数字の生成間隔(ms)
 let lastSpawnedLane = null; // 最後に数字を落としたレーン
+let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
 
 /*
  * スコアを更新する関数
@@ -52,9 +53,34 @@ function fallDown(num, laneIndex) {
             num.style.top = pos + "px";
         } else {
             clearInterval(fallInterval);
-            num.remove(); // 下に到達した数字を削除
+            fallIntervals.delete(num); // 落下アニメーションを削除
+            checkAndClearAllNumbers(); // 全削除するかチェック
         }
-    }, 10);
+    }, 5);
+
+    // 落下アニメーションを管理する
+    fallIntervals.set(num, fallInterval);
+}
+
+/*
+ * 画面上のすべての数字を削除し、落下アニメーションも停止する関数
+ */
+function clearAllNumbers() {
+    fallIntervals.forEach((interval, num) => {
+        clearInterval(interval);
+    });
+    fallIntervals.clear(); // マップをクリア
+    document.querySelectorAll(".number").forEach(num => num.remove());
+}
+
+/*
+ * すべてのレーンが空かどうかをチェックし、必要なら全削除する関数
+ */
+function checkAndClearAllNumbers() {
+    const allNumbers = document.querySelectorAll(".number");
+    if (allNumbers.length !== 0) {
+        clearAllNumbers();
+    }
 }
 
 /*
@@ -87,9 +113,10 @@ function divideNumber(factor) {
         num /= factor;
         updateScore(factor); // スコア加算
 
-        if (num === 1) { // 1になったら削除して新しい数字を生成
+        if (num === 1) { // 1になったら削除
+            clearInterval(fallIntervals.get(numElem)); // 落下アニメーションを停止
+            fallIntervals.delete(numElem);
             numElem.remove();
-            spawnNumber(activeLane);
         } else {
             numElem.innerText = num; // 更新
         }
@@ -100,4 +127,3 @@ function divideNumber(factor) {
 
 spawnNumber();
 setInterval(spawnNumber, spawnInterval);
-
