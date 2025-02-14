@@ -6,6 +6,8 @@ const numbers = [6, 10, 12, 14, 15, 18, 21, 30, 35, 36, 42, 49];
 let score = 0;       // スコア管理
 let activeLane = null; // 現在選択中のレーン
 let fallSpeed = 0.5; // 数字の落下速度
+let spawnInterval = 4000; // 数字の生成間隔(ms)
+let lastSpawnedLane = null; // 最後に数字を落としたレーン
 
 /*
  * スコアを更新する関数
@@ -17,17 +19,24 @@ function updateScore(points) {
 }
 
 /*
- * 指定したレーンにランダムな数字を生成
- * @param {number} laneIndex - 数字を生成するレーンのインデックス
+ * ランダムなレーンに数字を生成する関数
  */
-function spawnNumber(laneIndex) {
+function spawnNumber() {
+    // 同じレーンに連続して数字を生成しないようにする
+    do {
+        laneIndex = Math.floor(Math.random() * lanes.length);
+    } while (laneIndex === lastSpawnedLane);
     const lane = lanes[laneIndex];
+
     const num = document.createElement("div");
     num.classList.add("number");
     num.innerText = numbers[Math.floor(Math.random() * numbers.length)];
     num.style.top = "0px";
     lane.appendChild(num);
+
     fallDown(num, laneIndex);
+
+    lastSpawnedLane = laneIndex;
 }
 
 /*
@@ -44,7 +53,6 @@ function fallDown(num, laneIndex) {
         } else {
             clearInterval(fallInterval);
             num.remove(); // 下に到達した数字を削除
-            spawnNumber(laneIndex); // 新しい数字を生成
         }
     }, 10);
 }
@@ -90,5 +98,6 @@ function divideNumber(factor) {
     }
 }
 
-// 各レーンに最初の数字を配置
-lanes.forEach((lane, index) => spawnNumber(index));
+spawnNumber();
+setInterval(spawnNumber, spawnInterval);
+
