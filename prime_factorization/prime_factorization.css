@@ -11,14 +11,21 @@ body {
     background-color: lightgray;
     margin: auto;
     position: relative;
+    padding: 0;
+    border: 1px solid black;
 }
 
 .lane {
+    flex: 1;
     width: 80px;
     height: 100%;
     background: #ccc;
     border: 1px solid black;
     position: relative;
+}
+
+.lane.selected {
+    background: lightblue;
 }
 
 .number {
@@ -31,6 +38,8 @@ body {
     text-align: center;
     line-height: 50px;
     font-weight: bold;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .buttons {
