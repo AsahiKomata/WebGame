@@ -1,11 +1,18 @@
 const lanes = document.querySelectorAll(".lane");
+const factorButtons = document.querySelectorAll(".factor-btn");
 
 // 出現する数字のリスト
 const numbers = [6, 10, 12, 14, 15, 18, 21, 30, 35, 36, 42, 49];
 
+// 因数のリスト
+const factors = [2, 3, 5, 7];
+
+// ボタンに設定する因数の出現回数を管理
+let factorCount = { 2: 0, 3: 0, 5: 0, 7: 0 };
+
 let score = 0;       // スコア管理
 let activeLane = null; // 現在選択中のレーン
-let fallSpeed = 2; // 数字の落下速度
+let fallSpeed = 0.5; // 数字の落下速度
 let spawnInterval = 2000; // 数字の生成間隔(ms)
 let lastSpawnedLane = null; // 最後に数字を落としたレーン
 let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
@@ -125,5 +132,82 @@ function divideNumber(factor) {
     }
 }
 
-spawnNumber();
-setInterval(spawnNumber, spawnInterval);
+/*
+ * ボタンに因数を設定する関数
+ * @param {HTMLElement} button - 更新するボタン
+ */
+function updateButtonFactor(button) {
+    // 画面上に現在表示されている因数をカウント
+    const currentFactors = Array.from(factorButtons).map(btn => parseInt(btn.innerText));
+    const factorCounts = {};
+
+    // 各因数の出現回数をカウント
+    currentFactors.forEach(f => {
+        factorCounts[f] = (factorCounts[f] || 0) + 1;
+    });
+
+    // 選択可能な因数のリスト（現在の因数が2回未満のもの）
+    const availableFactors = factors.filter(f => (factorCounts[f] || 0) < 2);
+
+    // 選択可能な因数がない場合は変更しない
+    if (availableFactors.length === 0) return;
+
+    // ランダムに新しい因数を選択
+    const selectedFactor = availableFactors[Math.floor(Math.random() * availableFactors.length)];
+
+    // ボタンに設定
+    button.innerText = selectedFactor;
+}
+
+
+/*
+ * 特定のレーンの一番下の数字を取得する関数
+ * @param {HTMLElement} lane - 対象のレーン
+ * @return {number|null} 一番下の数字またはnull
+ */
+function getBottomNumberForLane(lane) {
+    const numbersInLane = lane.querySelectorAll(".number");
+    if (numbersInLane.length === 0) return null;
+
+    // レーン内の一番下の数字を取得
+    let bottomNumber = null;
+    let maxTop = -1;
+    numbersInLane.forEach(num => {
+        const top = parseFloat(num.style.top);
+        if (top > maxTop) {
+            maxTop = top;
+            bottomNumber = parseInt(num.innerText);
+        }
+    });
+    return bottomNumber;
+}
+
+/*
+ * ボタンのクリックイベントを設定
+ */
+factorButtons.forEach(button => {
+    button.onclick = () => {
+        // 数字を選択した因数で割る
+        const factor = parseInt(button.innerText);
+        divideNumber(factor);
+
+        // ボタンの因数を更新
+        updateButtonFactor(button);
+    };
+});
+
+/*
+ * 初期化処理
+ */
+function initializeGame() {
+    spawnNumber();
+    setInterval(spawnNumber, spawnInterval);
+
+    factorButtons.forEach(button => {
+        // ゲーム開始時にボタンに初期値を設定
+        updateButtonFactor(button);
+    });
+}
+
+// 初期化処理の呼び出し
+initializeGame();
