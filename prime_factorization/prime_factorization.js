@@ -16,6 +16,8 @@ let fallSpeed = 0.5; // 数字の落下速度
 let spawnInterval = 2000; // 数字の生成間隔(ms)
 let lastSpawnedLane = null; // 最後に数字を落としたレーン
 let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
+let correctCount = 0; // 正解数
+let wrongCount = 0; // 誤答数
 
 /*
  * スコアを更新する関数
@@ -24,6 +26,15 @@ let fallIntervals = new Map(); // 落下アニメーションを管理するマ�
 function updateScore(points) {
     score += points;
     document.getElementById("score").innerText = score;
+}
+
+/*
+ * 正解率を更新する関数
+ */
+function updateAccuracy() {
+    let totalAttempts = correctCount + wrongCount;
+    let accuracy = totalAttempts > 0 ? (correctCount / totalAttempts) * 100 : 0;
+    document.getElementById("accuracy").innerText = accuracy.toFixed(2);
 }
 
 /*
@@ -118,9 +129,12 @@ function divideNumber(factor) {
     let num = parseInt(numElem.innerText);
     if (num % factor === 0) { // 割り切れる場合
         num /= factor;
-        updateScore(factor); // スコア加算
 
-        if (num === 1) { // 1になったら削除
+        correctCount++;
+        updateAccuracy();
+
+        if (num === 1) { // 1になったら削除しスコアを＋100
+            updateScore(100); // スコア加算
             clearInterval(fallIntervals.get(numElem)); // 落下アニメーションを停止
             fallIntervals.delete(numElem);
             numElem.remove();
@@ -129,6 +143,9 @@ function divideNumber(factor) {
         }
     } else {
         updateScore(-factor); // 間違った場合スコアを減らす
+
+        wrongCount++;
+        updateAccuracy();
     }
 }
 
