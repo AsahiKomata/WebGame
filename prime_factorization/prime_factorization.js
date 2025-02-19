@@ -1,5 +1,6 @@
 const lanes = document.querySelectorAll(".lane");
 const factorButtons = document.querySelectorAll(".factor-btn");
+const changeAllButton = document.getElementById("change-all-btn");
 
 // 出現する数字のリスト
 const numbers = [6, 10, 12, 14, 15, 18, 21, 30, 35, 36, 42, 49];
@@ -176,7 +177,6 @@ function updateButtonFactor(button) {
     button.innerText = selectedFactor;
 }
 
-
 /*
  * 特定のレーンの一番下の数字を取得する関数
  * @param {HTMLElement} lane - 対象のレーン
@@ -198,6 +198,33 @@ function getBottomNumberForLane(lane) {
     });
     return bottomNumber;
 }
+
+/*
+ * すべての因数ボタンを更新する関数
+ */
+function updateAllButtonFactors() {
+    let selectedFactors = [];
+
+    while (selectedFactors.length < factorButtons.length) {
+        let factor = factors[Math.floor(Math.random() * factors.length)];
+
+        // 同じ因数が3つ以上にならないようにする
+        if (selectedFactors.filter(f => f === factor).length < 2) {
+            selectedFactors.push(factor);
+        }
+    }
+
+    // すべてのボタンに適用
+    factorButtons.forEach((button, index) => {
+        button.innerText = selectedFactors[index];
+    });
+}
+
+/*
+ * 「変更」ボタンのクリックイベントを設定
+ */
+changeAllButton.onclick = updateAllButtonFactors;
+
 
 /*
  * ボタンのクリックイベントを設定
