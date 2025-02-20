@@ -1,13 +1,14 @@
 body {
     text-align: center;
     font-family: Arial, sans-serif;
+    padding: 10px;
 }
 
 #game-area {
     display: flex;
     justify-content: space-around;
-    width: 400px;
-    height: 500px;
+    width: 75%;
+    height: 60vh;
     background-color: lightgray;
     margin: auto;
     position: relative;
@@ -17,7 +18,7 @@ body {
 
 .lane {
     flex: 1;
-    width: 80px;
+    width: 25%;
     height: 100%;
     background: #ccc;
     border: 1px solid black;
@@ -30,15 +31,12 @@ body {
 
 .number {
     position: absolute;
-    width: 60px;
-    height: 60px;
+    width: 75%;
     background: rgb(212, 36, 80);
     color: white;
     border-radius: 0;
     text-align: center;
-    line-height: 60px;
     font-weight: bold;
-    font-size: 40px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -53,8 +51,6 @@ body {
 
 #change-all-btn {
     padding: 0;
-    width: 60px;
-    height: 60px;
     margin: 5px;
     background-image: url('img/change.png');
     background-size: cover;
@@ -66,9 +62,6 @@ body {
 }
 
 .factor-btn {
-    width: 60px;
-    height: 60px;
-    font-size: 30px;
     margin: 5px;
     border-radius: 50%;
     border: none;
@@ -96,8 +89,6 @@ body {
 
 .result-effect {
     position: absolute;
-    width: 90px;
-    height: 90px;
     opacity: 1;
     transition: opacity 1s ease-out, transform 1s ease-out;
     pointer-events: none;

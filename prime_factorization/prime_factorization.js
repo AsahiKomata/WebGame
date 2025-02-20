@@ -2,6 +2,26 @@ const lanes = document.querySelectorAll(".lane");
 const factorButtons = document.querySelectorAll(".factor-btn");
 const changeAllButton = document.getElementById("change-all-btn");
 
+const lane = document.querySelector('.lane');
+const laneHeight = lane.offsetHeight;
+const laneWidth = lane.offsetWidth;
+
+/**
+ * ゲーム開始時にボタンの大きさを設定する関数
+ */
+function setButtonSizes() {
+    const newSize = laneWidth * 5 / 7;
+
+    factorButtons.forEach(button => {
+        button.style.width = `${newSize}px`;
+        button.style.height = `${newSize}px`;
+        button.style.fontSize = `${newSize * 0.6}px`;
+    });
+
+    changeAllButton.style.width = `${newSize}px`;
+    changeAllButton.style.height = `${newSize}px`;
+}
+
 // 出現する数字のリスト
 const numbers = [6, 8, 10, 12, 15, 18, 20, 24, 30];
 
@@ -11,9 +31,21 @@ const factors = [2, 3, 4, 5];
 // ボタンに設定する因数の出現回数を管理
 let factorCount = { 2: 0, 3: 0, 4: 0, 5: 0 };
 
+/**
+ * 落下速度を設定する関数
+ * @return {number} 落下速度
+ */
+function setFallSpeed() {
+    // 20秒でレーンの一番下に到達するための速度を計算
+    const fallDuration = 20; // 落下時間（秒）
+    const fallSpeed = laneHeight / fallDuration / 40;
+
+    return fallSpeed;
+}
+
 let score = 0;       // スコア管理
 let activeLane = null; // 現在選択中のレーン
-let fallSpeed = 0.5; // 数字の落下速度
+let fallSpeed = setFallSpeed(); // 数字の落下速度
 let spawnInterval = 2000; // 数字の生成間隔(ms)
 let lastSpawnedLane = null; // 最後に数字を落としたレーン
 let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
@@ -39,6 +71,24 @@ function updateAccuracy() {
 }
 
 /**
+ * 落ちてくる数字の高さとフォントサイズを設定する関数
+ * @param {HTMLElement} numElem - 数字の要素
+ */
+function setNumberSize(numElem) {
+    // .number の幅を取得
+    const numberWidth = numElem.offsetWidth;
+
+    // 幅と同じ値を高さに設定
+    numElem.style.height = numberWidth + "px";
+    numElem.style.lineHeight = numberWidth + "px";
+
+    // フォントサイズを設定
+    const fontSize = Math.floor(numberWidth * 2 / 3);
+    numElem.style.fontSize = fontSize + "px";
+}
+
+
+/**
  * ランダムなレーンに数字を生成する関数
  */
 function spawnNumber() {
@@ -54,6 +104,10 @@ function spawnNumber() {
     num.style.top = "0px";
     lane.appendChild(num);
 
+    // 数字のサイズを設定
+    setNumberSize(num);
+
+
     fallDown(num, laneIndex);
 
     lastSpawnedLane = laneIndex;
@@ -67,7 +121,7 @@ function spawnNumber() {
 function fallDown(num, laneIndex) {
     let pos = 0;
     const fallInterval = setInterval(() => {
-        if (pos < 450) {
+        if (pos < laneHeight - laneWidth * 0.75) {
             pos += fallSpeed;
             num.style.top = pos + "px";
         } else {
@@ -283,6 +337,19 @@ function animateFactorButton(button, factor) {
 }
 
 /**
+ * エフェクト画像のサイズを設定する関数
+ * @param {HTMLElement} effectImg - エフェクト画像の要素
+*/
+function setEffectSize(effectImg) {
+    // エフェクトのサイズをレーン幅の80%に設定
+    const effectSize = laneWidth * 0.8;
+
+    // エフェクト画像のサイズを設定
+    effectImg.style.width = effectSize + "px";
+    effectImg.style.height = effectSize + "px";
+}
+
+/**
  * 正解または不正解のエフェクトを表示する関数
  * @param {HTMLElement} numElem - 数字の要素
  * @param {string} imageName - 表示する画像のファイル名
@@ -293,6 +360,9 @@ function showResultEffect(numElem, imageName) {
     effectImg.classList.add("result-effect");
 
     document.body.appendChild(effectImg);
+
+    // エフェクトのサイズを設定
+    setEffectSize(effectImg);
 
     const computedStyle = window.getComputedStyle(effectImg);
     const imgSize = parseFloat(computedStyle.width);
@@ -333,6 +403,7 @@ factorButtons.forEach((button, index) => {
  * 初期化処理
  */
 function initializeGame() {
+    setButtonSizes();
     spawnNumber();
     setInterval(spawnNumber, spawnInterval);
 
