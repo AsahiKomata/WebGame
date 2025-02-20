@@ -93,3 +93,18 @@ body {
     margin: 5px 0;
     line-height: 1.2;
 }
+
+.result-effect {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    opacity: 1;
+    transition: opacity 1s ease-out, transform 1s ease-out;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.result-effect.fade-out {
+    opacity: 0;
+    transform: translateY(-20px);
+}

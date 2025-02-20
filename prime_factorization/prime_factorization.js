@@ -3,13 +3,13 @@ const factorButtons = document.querySelectorAll(".factor-btn");
 const changeAllButton = document.getElementById("change-all-btn");
 
 // 出現する数字のリスト
-const numbers = [6, 10, 12, 14, 15, 18, 21, 30, 35, 36, 42, 49];
+const numbers = [6, 8, 10, 12, 15, 18, 20, 24, 30];
 
 // 因数のリスト
-const factors = [2, 3, 5, 7];
+const factors = [2, 3, 4, 5];
 
 // ボタンに設定する因数の出現回数を管理
-let factorCount = { 2: 0, 3: 0, 5: 0, 7: 0 };
+let factorCount = { 2: 0, 3: 0, 4: 0, 5: 0 };
 
 let score = 0;       // スコア管理
 let activeLane = null; // 現在選択中のレーン
@@ -20,7 +20,7 @@ let fallIntervals = new Map(); // 落下アニメーションを管理するマ�
 let correctCount = 0; // 正解数
 let wrongCount = 0; // 誤答数
 
-/*
+/**
  * スコアを更新する関数
  * @param {number} points - 加算または減算するスコア
  */
@@ -29,7 +29,7 @@ function updateScore(points) {
     document.getElementById("score").innerText = score;
 }
 
-/*
+/**
  * 正解率を更新する関数
  */
 function updateAccuracy() {
@@ -38,7 +38,7 @@ function updateAccuracy() {
     document.getElementById("accuracy").innerText = accuracy.toFixed(2);
 }
 
-/*
+/**
  * ランダムなレーンに数字を生成する関数
  */
 function spawnNumber() {
@@ -59,7 +59,7 @@ function spawnNumber() {
     lastSpawnedLane = laneIndex;
 }
 
-/*
+/**
  * 数字を落下させる関数
  * @param {HTMLElement} num - 落下する数字の要素
  * @param {number} laneIndex - 落下するレーンのインデックス
@@ -73,7 +73,8 @@ function fallDown(num, laneIndex) {
         } else {
             clearInterval(fallInterval);
             fallIntervals.delete(num); // 落下アニメーションを削除
-            checkAndClearAllNumbers(); // 全削除するかチェック
+            num.remove(); // 数字を削除
+            // checkAndClearAllNumbers(); // 全削除するかチェック
         }
     }, 5);
 
@@ -81,7 +82,7 @@ function fallDown(num, laneIndex) {
     fallIntervals.set(num, fallInterval);
 }
 
-/*
+/**
  * 画面上のすべての数字を削除し、落下アニメーションも停止する関数
  */
 function clearAllNumbers() {
@@ -92,7 +93,7 @@ function clearAllNumbers() {
     document.querySelectorAll(".number").forEach(num => num.remove());
 }
 
-/*
+/**
  * すべてのレーンが空かどうかをチェックし、必要なら全削除する関数
  */
 function checkAndClearAllNumbers() {
@@ -102,7 +103,7 @@ function checkAndClearAllNumbers() {
     }
 }
 
-/*
+/**
  * レーンを選択する関数
  * @param {number} index - 選択するレーンのインデックス
  */
@@ -116,7 +117,7 @@ function selectLane(index) {
     lanes[index].classList.add("selected");
 }
 
-/*
+/**
  * 数字を選択した因数で割る関数
  * @param {number} factor - 選択した因数
  */
@@ -128,14 +129,21 @@ function divideNumber(factor) {
     if (!numElem) return; // 数字が存在しない場合は処理しない
 
     let num = parseInt(numElem.innerText);
+    let topPosition = parseFloat(numElem.style.top) || 0;
+    let laneHeight = lane.clientHeight;
+
     if (num % factor === 0) { // 割り切れる場合
         num /= factor;
 
         correctCount++;
         updateAccuracy();
 
-        if (num === 1) { // 1になったら削除しスコアを＋100
-            updateScore(100); // スコア加算
+        showResultEffect(numElem, "img/correct.png");
+
+        if (num === 1) { // 1になったら削除しスコアを加算
+            let positionRatio = topPosition / laneHeight; // 数字の現在位置の割合
+            let score = Math.max(50, Math.floor(200 - (positionRatio * 150)));
+            updateScore(score); // スコア加算
             clearInterval(fallIntervals.get(numElem)); // 落下アニメーションを停止
             fallIntervals.delete(numElem);
             numElem.remove();
@@ -147,10 +155,12 @@ function divideNumber(factor) {
 
         wrongCount++;
         updateAccuracy();
+
+        showResultEffect(numElem, "img/wrong.png");
     }
 }
 
-/*
+/**
  * ボタンに因数を設定する関数
  * @param {HTMLElement} button - 更新するボタン
  */
@@ -177,7 +187,7 @@ function updateButtonFactor(button) {
     button.innerText = selectedFactor;
 }
 
-/*
+/**
  * 特定のレーンの一番下の数字を取得する関数
  * @param {HTMLElement} lane - 対象のレーン
  * @return {number|null} 一番下の数字またはnull
@@ -199,7 +209,7 @@ function getBottomNumberForLane(lane) {
     return bottomNumber;
 }
 
-/*
+/**
  * すべての因数ボタンを更新する関数
  */
 function updateAllButtonFactors() {
@@ -220,7 +230,7 @@ function updateAllButtonFactors() {
     });
 }
 
-/*
+/**
  * 「変更」ボタンのクリックイベントを設定
  */
 changeAllButton.onclick = updateAllButtonFactors;
@@ -231,7 +241,7 @@ const buttonPositions = Array.from(factorButtons).map(btn => {
     return { x: rect.left, y: rect.top };
 });
 
-/*
+/**
  * 因数ボタンがレーンの一番下の数字に向かって移動するアニメーション
  * @param {HTMLElement} button - 押した因数ボタン
  * @param {number} factor - 選択した因数
@@ -249,7 +259,7 @@ function animateFactorButton(button, factor) {
 
     // 移動距離を計算
     const deltaX = targetRect.left - buttonRect.left;
-    const deltaY = targetRect.top - buttonRect.top;
+    const deltaY = targetRect.top - buttonRect.top + fallSpeed * 12;
 
     // ボタン移動アニメーション
     button.style.transition = "transform 0.5s ease-in-out, opacity 0.3s ease-in-out";
@@ -267,18 +277,47 @@ function animateFactorButton(button, factor) {
             button.style.transition = "none";
             button.style.transform = "translate(0, 0)"; // 元の位置に戻す
             button.style.opacity = "1"; // 再表示
+            updateButtonFactor(button); // ボタンの因数を更新
         }, 300);
     }, 500);
 }
 
 /**
- * ボタンを元の位置に戻す
- * @param {HTMLElement} button - 移動した因数ボタン
+ * 正解または不正解のエフェクトを表示する関数
+ * @param {HTMLElement} numElem - 数字の要素
+ * @param {string} imageName - 表示する画像のファイル名
  */
-function resetButtonPosition(button) {
-    button.style.transition = "transform 0.3s ease-in-out";
-    button.style.transform = "translate(0, 0)";
+function showResultEffect(numElem, imageName) {
+    const effectImg = document.createElement("img");
+    effectImg.src = imageName;
+    effectImg.classList.add("result-effect");
+
+    document.body.appendChild(effectImg);
+
+    const computedStyle = window.getComputedStyle(effectImg);
+    const imgSize = parseFloat(computedStyle.width);
+
+    // 数字の要素の位置とサイズを取得
+    const rect = numElem.getBoundingClientRect();
+    const centerX = rect.left + window.scrollX + rect.width / 2;
+    const centerY = rect.top + window.scrollY + rect.height / 2;
+
+    // 画像の中央を数字の中央に合わせる
+    effectImg.style.left = `${centerX - imgSize / 2}px`;
+    effectImg.style.top = `${centerY - imgSize / 2}px`;
+
+    // 少し上に浮かびながら消えるアニメーション
+    setTimeout(() => {
+        effectImg.style.opacity = "0";
+        effectImg.style.transform = "translateY(-20px)";
+    }, 100);
+
+    // 一定時間後に削除
+    setTimeout(() => {
+        effectImg.remove();
+    }, 1000);
 }
+
 
 /**
  * ボタンのクリックイベントを設定
@@ -287,8 +326,6 @@ factorButtons.forEach((button, index) => {
     button.onclick = () => {
         const factor = parseInt(button.innerText);
         animateFactorButton(button, factor); // アニメーションを実行
-
-        updateButtonFactor(button); // ボタンの因数を更新
     };
 });
 
