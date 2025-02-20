@@ -225,18 +225,70 @@ function updateAllButtonFactors() {
  */
 changeAllButton.onclick = updateAllButtonFactors;
 
+// ボタンの元の位置を記録
+const buttonPositions = Array.from(factorButtons).map(btn => {
+    const rect = btn.getBoundingClientRect();
+    return { x: rect.left, y: rect.top };
+});
 
 /*
- * ボタンのクリックイベントを設定
+ * 因数ボタンがレーンの一番下の数字に向かって移動するアニメーション
+ * @param {HTMLElement} button - 押した因数ボタン
+ * @param {number} factor - 選択した因数
  */
-factorButtons.forEach(button => {
-    button.onclick = () => {
-        // 数字を選択した因数で割る
-        const factor = parseInt(button.innerText);
+function animateFactorButton(button, factor) {
+    if (activeLane === null) return; // レーン未選択なら何もしない
+
+    const lane = lanes[activeLane];
+    const bottomNumber = getBottomNumberForLane(lane);
+    if (bottomNumber === null) return; // レーンに数字がなければ終了
+
+    const targetElem = lane.querySelector(".number");
+    const targetRect = targetElem.getBoundingClientRect();
+    const buttonRect = button.getBoundingClientRect();
+
+    // 移動距離を計算
+    const deltaX = targetRect.left - buttonRect.left;
+    const deltaY = targetRect.top - buttonRect.top;
+
+    // ボタン移動アニメーション
+    button.style.transition = "transform 0.5s ease-in-out, opacity 0.3s ease-in-out";
+    button.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+    // 当たったら透明にする
+    setTimeout(() => {
+        button.style.opacity = "0"; // ボタンを透明化
+
+        // 割り算を実行
         divideNumber(factor);
 
-        // ボタンの因数を更新
-        updateButtonFactor(button);
+        // 透明化したボタンを元の位置に戻す
+        setTimeout(() => {
+            button.style.transition = "none";
+            button.style.transform = "translate(0, 0)"; // 元の位置に戻す
+            button.style.opacity = "1"; // 再表示
+        }, 300);
+    }, 500);
+}
+
+/**
+ * ボタンを元の位置に戻す
+ * @param {HTMLElement} button - 移動した因数ボタン
+ */
+function resetButtonPosition(button) {
+    button.style.transition = "transform 0.3s ease-in-out";
+    button.style.transform = "translate(0, 0)";
+}
+
+/**
+ * ボタンのクリックイベントを設定
+ */
+factorButtons.forEach((button, index) => {
+    button.onclick = () => {
+        const factor = parseInt(button.innerText);
+        animateFactorButton(button, factor); // アニメーションを実行
+
+        updateButtonFactor(button); // ボタンの因数を更新
     };
 });
 

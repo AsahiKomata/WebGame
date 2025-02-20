@@ -30,15 +30,15 @@ body {
 
 .number {
     position: absolute;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     background: rgb(212, 36, 80);
     color: white;
     border-radius: 0;
     text-align: center;
-    line-height: 50px;
+    line-height: 60px;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 40px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -59,7 +59,7 @@ body {
     background-image: url('img/change.png');
     background-size: cover;
     background-position: center;
-    border: none;
+    border: 1px solid black;
     border-radius: 50%;
     cursor: pointer;
     transition: background 0.3s;
