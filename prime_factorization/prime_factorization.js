@@ -38,7 +38,7 @@ let factorCount = { 2: 0, 3: 0, 4: 0, 5: 0 };
 function setFallSpeed() {
     // 20秒でレーンの一番下に到達するための速度を計算
     const fallDuration = 20; // 落下時間（秒）
-    const fallSpeed = laneHeight / fallDuration / 40;
+    const fallSpeed = laneHeight / fallDuration / 200;
 
     return fallSpeed;
 }
@@ -127,8 +127,8 @@ function fallDown(num, laneIndex) {
         } else {
             clearInterval(fallInterval);
             fallIntervals.delete(num); // 落下アニメーションを削除
-            num.remove(); // 数字を削除
-            // checkAndClearAllNumbers(); // 全削除するかチェック
+            // num.remove(); // 数字を削除
+            checkAndClearAllNumbers(); // 全削除するかチェック
         }
     }, 5);
 
@@ -174,11 +174,12 @@ function selectLane(index) {
 /**
  * 数字を選択した因数で割る関数
  * @param {number} factor - 選択した因数
+ * @param {number} laneIndex - 選択したレーンのインデックス
  */
-function divideNumber(factor) {
-    if (activeLane === null) return; // レーンが選択されていなければ何もしない
+function divideNumber(factor, laneIndex) {
+    if (laneIndex === null) return; // レーンが選択されていなければ何もしない
 
-    const lane = lanes[activeLane];
+    const lane = lanes[laneIndex];
     const numElem = lane.querySelector(".number");
     if (!numElem) return; // 数字が存在しない場合は処理しない
 
@@ -303,7 +304,9 @@ const buttonPositions = Array.from(factorButtons).map(btn => {
 function animateFactorButton(button, factor) {
     if (activeLane === null) return; // レーン未選択なら何もしない
 
-    const lane = lanes[activeLane];
+    const selectedLaneAtStart = activeLane;
+
+    const lane = lanes[selectedLaneAtStart];
     const bottomNumber = getBottomNumberForLane(lane);
     if (bottomNumber === null) return; // レーンに数字がなければ終了
 
@@ -324,7 +327,7 @@ function animateFactorButton(button, factor) {
         button.style.opacity = "0"; // ボタンを透明化
 
         // 割り算を実行
-        divideNumber(factor);
+        divideNumber(factor, selectedLaneAtStart);
 
         // 透明化したボタンを元の位置に戻す
         setTimeout(() => {
