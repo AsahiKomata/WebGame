@@ -6,16 +6,21 @@ const lane = document.querySelector('.lane');
 const laneHeight = lane.offsetHeight;
 const laneWidth = lane.offsetWidth;
 
-const sound = document.getElementById(isCorrect ? "correctAnswerSound" : "wrongAnswerSound");
+// スコアによって切り替える数字と因数のリストを3つ用意
+const numbersList = [
+    [6, 8, 10, 12, 15, 18, 20, 24, 30], // 初期リスト
+    [10, 12, 15, 18, 20, 24, 30, 35, 40], // 2回目のリスト（スコアが1000を超えた場合）
+    [15, 18, 20, 24, 30, 35, 40, 50, 60] // 3回目のリスト（スコアが2000を超えた場合）
+];
 
-// 出現する数字のリスト
-const numbers = [6, 8, 10, 12, 15, 18, 20, 24, 30];
+const factorsList = [
+    [2, 3, 4, 5], // 初期因数リスト
+    [3, 4, 5, 6], // 2回目の因数リスト（スコアが1000を超えた場合）
+    [4, 5, 6, 7]  // 3回目の因数リスト
+];
 
-// 因数のリスト
-const factors = [2, 3, 4, 5];
-
-// ボタンに設定する因数の出現回数を管理
-let factorCount = { 2: 0, 3: 0, 4: 0, 5: 0 };
+let currentNumbers = numbersList[0]; // 現在の数字リスト（初期）
+let currentFactors = factorsList[0]; // 現在の因数リスト（初期）
 
 let score = 0;       // スコア管理
 let activeLane = null; // 現在選択中のレーン
@@ -25,6 +30,8 @@ let lastSpawnedLane = null; // 最後に数字を落としたレーン
 let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
 let correctCount = 0; // 正解数
 let wrongCount = 0; // 誤答数
+let threshold1 = 200; // スコアのしきい値1
+let threshold2 = 400; // スコアのしきい値2
 
 /**
  * 落下速度を設定する関数
@@ -33,7 +40,7 @@ let wrongCount = 0; // 誤答数
 function setFallSpeed() {
     // 20秒でレーンの一番下に到達するための速度を計算
     const fallDuration = 20; // 落下時間（秒）
-    const fallSpeed = laneHeight / fallDuration / 50;
+    const fallSpeed = laneHeight / fallDuration / 200;
 
     return fallSpeed;
 }
@@ -61,6 +68,20 @@ function setButtonSizes() {
 function updateScore(points) {
     score += points;
     document.getElementById("score").innerText = score;
+
+    // スコアが閾値１を超えたら2回目のリストに切り替え
+    if (score > threshold1 && currentNumbers === numbersList[0]) {
+        currentNumbers = numbersList[1];
+        currentFactors = factorsList[1];
+        updateAllButtonFactors(); // ボタンの因数を再設定
+    }
+
+    // スコアが閾値２を超えたら3回目のリストに切り替え
+    if (score > threshold2 && currentNumbers === numbersList[1]) {
+        currentNumbers = numbersList[2];
+        currentFactors = factorsList[2];
+        updateAllButtonFactors(); // ボタンの因数を再設定
+    }
 }
 
 /**
@@ -89,7 +110,6 @@ function setNumberSize(numElem) {
     numElem.style.fontSize = fontSize + "px";
 }
 
-
 /**
  * ランダムなレーンに数字を生成する関数
  */
@@ -102,13 +122,20 @@ function spawnNumber() {
 
     const num = document.createElement("div");
     num.classList.add("number");
-    num.innerText = numbers[Math.floor(Math.random() * numbers.length)];
-    num.style.top = "0px";
+    num.innerText = currentNumbers[Math.floor(Math.random() * currentNumbers.length)]; // 現在の数字リストから選択
+    if (score < threshold1) {
+        num.style.background = "rgb(212, 36, 80)";
+    }
+    if (score > threshold1 && score < threshold2) {
+        num.style.background = "rgb(255, 215, 0)";
+    }
+    if (score > threshold2) {
+        num.style.background = "rgb(0, 128, 0)";
+    }
     lane.appendChild(num);
 
     // 数字のサイズを設定
     setNumberSize(num);
-
 
     fallDown(num, laneIndex);
 
@@ -225,16 +252,16 @@ function divideNumber(factor, laneIndex) {
  */
 function updateButtonFactor(button) {
     // 画面上に現在表示されている因数をカウント
-    const currentFactors = Array.from(factorButtons).map(btn => parseInt(btn.innerText));
+    const currentFactorsOnButtons = Array.from(factorButtons).map(btn => parseInt(btn.innerText));
     const factorCounts = {};
 
     // 各因数の出現回数をカウント
-    currentFactors.forEach(f => {
+    currentFactorsOnButtons.forEach(f => {
         factorCounts[f] = (factorCounts[f] || 0) + 1;
     });
 
     // 選択可能な因数のリスト（現在の因数が2回未満のもの）
-    const availableFactors = factors.filter(f => (factorCounts[f] || 0) < 2);
+    const availableFactors = currentFactors.filter(f => (factorCounts[f] || 0) < 2);
 
     // 選択可能な因数がない場合は変更しない
     if (availableFactors.length === 0) return;
@@ -275,7 +302,7 @@ function updateAllButtonFactors() {
     let selectedFactors = [];
 
     while (selectedFactors.length < factorButtons.length) {
-        let factor = factors[Math.floor(Math.random() * factors.length)];
+        let factor = currentFactors[Math.floor(Math.random() * currentFactors.length)];
 
         // 同じ因数が3つ以上にならないようにする
         if (selectedFactors.filter(f => f === factor).length < 2) {
@@ -294,7 +321,9 @@ function updateAllButtonFactors() {
  */
 changeAllButton.onclick = updateAllButtonFactors;
 
-// ボタンの元の位置を記録
+/**
+ * ボタンの元の位置を記録
+ */
 const buttonPositions = Array.from(factorButtons).map(btn => {
     const rect = btn.getBoundingClientRect();
     return { x: rect.left, y: rect.top };
@@ -400,6 +429,7 @@ function showResultEffect(numElem, imageName) {
  * @param {boolean} isCorrect - 正解の場合はtrue、不正解の場合はfalse
  */
 function playSound(isCorrect) {
+    const sound = document.getElementById(isCorrect ? "correctAnswerSound" : "wrongAnswerSound");
     sound.currentTime = 0; // 再生位置をリセット（連続再生時に途中再生を防ぐ）
     sound.play();
 }

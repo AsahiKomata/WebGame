@@ -37,7 +37,6 @@ body {
     width: 75%;
     max-width: 60px;
     max-height: 60px;
-    background: rgb(212, 36, 80);
     color: white;
     border-radius: 0;
     text-align: center;
@@ -64,6 +63,7 @@ body {
     border-radius: 50%;
     cursor: pointer;
     transition: background 0.3s;
+    box-shadow: 0px 5px 0px rgba(0, 0, 0, 0.3), 0px 7px 10px rgba(0, 0, 0, 0.2);
 }
 
 .factor-btn {
@@ -74,11 +74,17 @@ body {
     background-color: rgb(13, 214, 174);
     cursor: pointer;
     transition: background 0.3s;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3), 0px 7px 10px rgba(0, 0, 0, 0.2);
 }
 
-.factor-btn:hover,
-#change-all-btn:hover {
+#change-all-btn:hover,
+.factor-btn:hover {
     background-color: rgb(19, 247, 99);
+}
+
+#change-all-btn:active {
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), 0px 3px 5px rgba(0, 0, 0, 0.2);
+    transform: translateY(3px);
 }
 
 .score-container {
