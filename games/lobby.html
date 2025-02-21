@@ -1,42 +1,25 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>待機所</title>
-</head>
-<body>
-    <h1>待機所</h1>
-    <input type="text" id="username" placeholder="ユーザー名を入力">
-    <button onclick="joinWaitingRoom()">参加</button>
-    <h2>待機中のユーザー</h2>
-    <ul id="userList"></ul>
+<script>
+    // ホストPCのIPアドレスを使う
+    const socket = io("http://172.25.190.173:3000");
 
-    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
-    <script>
-        const socket = io("http://localhost:3000"); // サーバーのURLに変更
-
-        function joinWaitingRoom() {
-            const username = document.getElementById("username").value;
-            if (username) {
-                socket.emit("setUsername", username);
-            }
+    function joinWaitingRoom() {
+        const username = document.getElementById("username").value;
+        if (username) {
+            socket.emit("setUsername", username);
         }
+    }
 
-        socket.on("updateWaitingUsers", (users) => {
-            const userList = document.getElementById("userList");
-            userList.innerHTML = "";
-            users.forEach(user => {
-                const li = document.createElement("li");
-                li.textContent = user.username;
-                userList.appendChild(li);
-            });
+    socket.on("updateWaitingUsers", (users) => {
+        const userList = document.getElementById("userList");
+        userList.innerHTML = "";
+        users.forEach(user => {
+            const li = document.createElement("li");
+            li.textContent = user.username;
+            userList.appendChild(li);
         });
+    });
 
-        socket.on("startGame", (users) => {
-            alert("ゲームを開始します！");
-            // ここでゲーム画面へ遷移（例: window.location.href = "game.html";）
-        });
-    </script>
-</body>
-</html>
+    socket.on("startGame", () => {
+        alert("ゲームを開始します！");
+    });
+</script>
