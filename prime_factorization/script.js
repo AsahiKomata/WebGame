@@ -6,6 +6,38 @@ const lane = document.querySelector('.lane');
 const laneHeight = lane.offsetHeight;
 const laneWidth = lane.offsetWidth;
 
+const sound = document.getElementById(isCorrect ? "correctAnswerSound" : "wrongAnswerSound");
+
+// 出現する数字のリスト
+const numbers = [6, 8, 10, 12, 15, 18, 20, 24, 30];
+
+// 因数のリスト
+const factors = [2, 3, 4, 5];
+
+// ボタンに設定する因数の出現回数を管理
+let factorCount = { 2: 0, 3: 0, 4: 0, 5: 0 };
+
+let score = 0;       // スコア管理
+let activeLane = null; // 現在選択中のレーン
+let fallSpeed = setFallSpeed(); // 数字の落下速度
+let spawnInterval = 2000; // 数字の生成間隔(ms)
+let lastSpawnedLane = null; // 最後に数字を落としたレーン
+let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
+let correctCount = 0; // 正解数
+let wrongCount = 0; // 誤答数
+
+/**
+ * 落下速度を設定する関数
+ * @return {number} 落下速度
+ */
+function setFallSpeed() {
+    // 20秒でレーンの一番下に到達するための速度を計算
+    const fallDuration = 20; // 落下時間（秒）
+    const fallSpeed = laneHeight / fallDuration / 50;
+
+    return fallSpeed;
+}
+
 /**
  * ゲーム開始時にボタンの大きさを設定する関数
  */
@@ -21,36 +53,6 @@ function setButtonSizes() {
     changeAllButton.style.width = `${newSize}px`;
     changeAllButton.style.height = `${newSize}px`;
 }
-
-// 出現する数字のリスト
-const numbers = [6, 8, 10, 12, 15, 18, 20, 24, 30];
-
-// 因数のリスト
-const factors = [2, 3, 4, 5];
-
-// ボタンに設定する因数の出現回数を管理
-let factorCount = { 2: 0, 3: 0, 4: 0, 5: 0 };
-
-/**
- * 落下速度を設定する関数
- * @return {number} 落下速度
- */
-function setFallSpeed() {
-    // 20秒でレーンの一番下に到達するための速度を計算
-    const fallDuration = 20; // 落下時間（秒）
-    const fallSpeed = laneHeight / fallDuration / 200;
-
-    return fallSpeed;
-}
-
-let score = 0;       // スコア管理
-let activeLane = null; // 現在選択中のレーン
-let fallSpeed = setFallSpeed(); // 数字の落下速度
-let spawnInterval = 2000; // 数字の生成間隔(ms)
-let lastSpawnedLane = null; // 最後に数字を落としたレーン
-let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
-let correctCount = 0; // 正解数
-let wrongCount = 0; // 誤答数
 
 /**
  * スコアを更新する関数
@@ -193,7 +195,8 @@ function divideNumber(factor, laneIndex) {
         correctCount++;
         updateAccuracy();
 
-        showResultEffect(numElem, "img/correct.png");
+        showResultEffect(numElem, "images/correct.png");
+        playSound(true);
 
         if (num === 1) { // 1になったら削除しスコアを加算
             let positionRatio = topPosition / laneHeight; // 数字の現在位置の割合
@@ -211,7 +214,8 @@ function divideNumber(factor, laneIndex) {
         wrongCount++;
         updateAccuracy();
 
-        showResultEffect(numElem, "img/wrong.png");
+        showResultEffect(numElem, "images/wrong.png");
+        playSound(false);
     }
 }
 
@@ -391,6 +395,14 @@ function showResultEffect(numElem, imageName) {
     }, 1000);
 }
 
+/**
+ * 正解音または不正解音を再生する関数
+ * @param {boolean} isCorrect - 正解の場合はtrue、不正解の場合はfalse
+ */
+function playSound(isCorrect) {
+    sound.currentTime = 0; // 再生位置をリセット（連続再生時に途中再生を防ぐ）
+    sound.play();
+}
 
 /**
  * ボタンのクリックイベントを設定

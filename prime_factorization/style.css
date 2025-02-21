@@ -57,7 +57,7 @@ body {
 #change-all-btn {
     padding: 0;
     margin: 5px;
-    background-image: url('img/change.png');
+    background-image: url('images/change.png');
     background-size: cover;
     background-position: center;
     border: 1px solid black;
