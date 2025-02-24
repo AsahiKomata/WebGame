@@ -51,7 +51,8 @@ body {
     background: rgba(173, 216, 230, 0.462);
 }
 
-.number {
+.number,
+.fast-number {
     position: absolute;
     width: 75%;
     max-width: 60px;
@@ -65,6 +66,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.fast-number {
+    color: red;
 }
 
 .buttons {
