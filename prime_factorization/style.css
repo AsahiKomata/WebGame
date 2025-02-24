@@ -2,20 +2,39 @@ body {
     text-align: center;
     font-family: Arial, sans-serif;
     padding: 10px;
+    background-color: rgb(26, 172, 191)
 }
 
 #game-area {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     width: 75%;
     height: 60vh;
     max-width: 400px;
     max-height: 500px;
-    background-color: lightgray;
+    /* background-color: lightgray; */
     margin: auto;
     position: relative;
     padding: 0;
     border: 1px solid black;
+    background-size: cover;
+    background-position: center;
+    transition: background 1s ease-in-out;
+}
+
+/* レベル1の背景 - 都市 */
+.level1 {
+    background-image: url('images/city.png');
+}
+
+/* レベル2の背景 - 空 */
+.level2 {
+    background-image: url('images/sky.png');
+}
+
+/* レベル3の背景 - 宇宙 */
+.level3 {
+    background-image: url('images/space.png');
 }
 
 .lane {
@@ -23,13 +42,13 @@ body {
     width: 25%;
     height: 100%;
     max-width: 100px;
-    background: #ccc;
+    /* background: #ccc; */
     border: 1px solid black;
     position: relative;
 }
 
 .lane.selected {
-    background: lightblue;
+    background: rgba(173, 216, 230, 0.462);
 }
 
 .number {
@@ -43,6 +62,9 @@ body {
     font-weight: bold;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .buttons {
@@ -71,15 +93,11 @@ body {
     margin: 5px;
     border-radius: 50%;
     border: none;
-    background-color: rgb(13, 214, 174);
+    color: white;
+    background-color: rgb(203, 28, 72);
     cursor: pointer;
     transition: background 0.3s;
     box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3), 0px 7px 10px rgba(0, 0, 0, 0.2);
-}
-
-#change-all-btn:hover,
-.factor-btn:hover {
-    background-color: rgb(19, 247, 99);
 }
 
 #change-all-btn:active {

@@ -1,6 +1,7 @@
 const lanes = document.querySelectorAll(".lane");
 const factorButtons = document.querySelectorAll(".factor-btn");
 const changeAllButton = document.getElementById("change-all-btn");
+const gameArea = document.getElementById("game-area");
 
 const lane = document.querySelector('.lane');
 const laneHeight = lane.offsetHeight;
@@ -8,15 +9,15 @@ const laneWidth = lane.offsetWidth;
 
 // スコアによって切り替える数字と因数のリストを3つ用意
 const numbersList = [
-    [6, 8, 10, 12, 15, 18, 20, 24, 30], // 初期リスト
-    [10, 12, 15, 18, 20, 24, 30, 35, 40], // 2回目のリスト（スコアが1000を超えた場合）
-    [15, 18, 20, 24, 30, 35, 40, 50, 60] // 3回目のリスト（スコアが2000を超えた場合）
+    [6, 8, 10, 12, 15, 20, 24, 30], // レベル1のリスト
+    [8, 10, 12, 14, 15, 18, 20, 21, 24, 28, 30, 35, 36, 40, 42, 48, 56, 60], // レベル２のリスト
+    [30, 35, 40, 42, 45, 48, 54, 56, 60, 63, 70, 72, 80, 84, 90, 96, 105, 108, 112, 120] // レベル３のリスト
 ];
 
 const factorsList = [
-    [2, 3, 4, 5], // 初期因数リスト
-    [3, 4, 5, 6], // 2回目の因数リスト（スコアが1000を超えた場合）
-    [4, 5, 6, 7]  // 3回目の因数リスト
+    [2, 3, 4, 5], // レベル1の因数リスト
+    [2, 3, 4, 5, 6, 7], // レベル２の因数リスト
+    [2, 3, 5, 6, 7, 8, 9]  // レベル3の因数リスト
 ];
 
 let currentNumbers = numbersList[0]; // 現在の数字リスト（初期）
@@ -30,8 +31,22 @@ let lastSpawnedLane = null; // 最後に数字を落としたレーン
 let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
 let correctCount = 0; // 正解数
 let wrongCount = 0; // 誤答数
-let threshold1 = 200; // スコアのしきい値1
-let threshold2 = 400; // スコアのしきい値2
+let threshold1 = 10; // スコアのしきい値1
+let threshold2 = 200; // スコアのしきい値2
+let currentLevel = 1; // 現在のレベル
+
+/**
+ * レベルを変更する関数
+ * @param {number} level - 変更するレベル
+ */
+function changeLevel(level) {
+    // 現在のレベルをリセット
+    gameArea.classList.remove(`level${currentLevel}`);
+
+    // 新しいレベルのクラスを追加
+    currentLevel = level;
+    gameArea.classList.add(`level${currentLevel}`);
+}
 
 /**
  * 落下速度を設定する関数
@@ -69,18 +84,20 @@ function updateScore(points) {
     score += points;
     document.getElementById("score").innerText = score;
 
-    // スコアが閾値１を超えたら2回目のリストに切り替え
+    // スコアが閾値１を超えたらレベル２のリストに切り替え
     if (score > threshold1 && currentNumbers === numbersList[0]) {
         currentNumbers = numbersList[1];
         currentFactors = factorsList[1];
         updateAllButtonFactors(); // ボタンの因数を再設定
+        changeLevel(2);
     }
 
-    // スコアが閾値２を超えたら3回目のリストに切り替え
+    // スコアが閾値２を超えたらレベル３のリストに切り替え
     if (score > threshold2 && currentNumbers === numbersList[1]) {
         currentNumbers = numbersList[2];
         currentFactors = factorsList[2];
         updateAllButtonFactors(); // ボタンの因数を再設定
+        changeLevel(3);
     }
 }
 
@@ -122,7 +139,7 @@ function spawnNumber() {
 
     const num = document.createElement("div");
     num.classList.add("number");
-    num.innerText = currentNumbers[Math.floor(Math.random() * currentNumbers.length)]; // 現在の数字リストから選択
+    num.innerText = currentNumbers[Math.floor(Math.random() * currentNumbers.length)];
     if (score < threshold1) {
         num.style.background = "rgb(212, 36, 80)";
     }
@@ -260,8 +277,8 @@ function updateButtonFactor(button) {
         factorCounts[f] = (factorCounts[f] || 0) + 1;
     });
 
-    // 選択可能な因数のリスト（現在の因数が2回未満のもの）
-    const availableFactors = currentFactors.filter(f => (factorCounts[f] || 0) < 2);
+    // 選択可能な因数のリスト（現在の因数が1回未満のもの）
+    const availableFactors = currentFactors.filter(f => (factorCounts[f] || 0) < 1);
 
     // 選択可能な因数がない場合は変更しない
     if (availableFactors.length === 0) return;
@@ -448,6 +465,7 @@ factorButtons.forEach((button, index) => {
  * 初期化処理
  */
 function initializeGame() {
+    changeLevel(1);
     setButtonSizes();
     spawnNumber();
     setInterval(spawnNumber, spawnInterval);
