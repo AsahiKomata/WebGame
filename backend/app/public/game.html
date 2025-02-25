@@ -11,8 +11,11 @@
 <body>
     <!-- <h1>因数分解ゲーム</h1> -->
     <div class="score-container">
-        <h2>スコア: <span id="score">0</span> 点</h2>
-        <h2>正解率: <span id="accuracy">0.00</span> %</h2>
+        <h2><span id="score">スコア: 0</span> 点</h2>
+        <h2>
+            <span id="level">レベル1</span>
+            正解率: <span id="accuracy">0.00</pan>%
+        </h2>
     </div>
     <div id="game-area">
         <div class="lane" onclick="selectLane(0)"></div>
@@ -33,19 +36,6 @@
     <audio id="wrongAnswerSound" src="audio/WrongAnswer.mp3"></audio>
 
     <script src="script.js"></script>
-
-    <script>
-        // URLからプレイヤー名を取得
-        const params = new URLSearchParams(window.location.search);
-        const username = params.get("user");
-    
-        if (username) {
-            console.log(`👤 プレイヤー名: ${username}`);
-            document.body.insertAdjacentHTML("afterbegin", `<h1>プレイヤー: ${username}</h1>`);
-        } else {
-            console.error("⚠ プレイヤー名が見つかりません");
-        }
-    </script>
 </body>
 
 </html>
