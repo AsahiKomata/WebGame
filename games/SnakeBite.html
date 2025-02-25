@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SnakeBite</title>
+    <meta charset="utf-8" />
+    <script type="text/javascript">
+        "use strict";
+        var W, H, S = 20;
+        var snake = [], foods = [], speedBoost, obstacle;
+        var keyCode = 0;
+        var point = 0;
+        var timer = NaN, obstacleTimer = NaN;
+        var ctx;
+        var speed = 200;
+
+        function Point(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        function init() {
+            var canvas = document.getElementById('field');
+            W = canvas.width / S;
+            H = canvas.height / S;
+            ctx = canvas.getContext('2d');
+            ctx.font = "20px sans-serif";
+
+            snake = [new Point(Math.floor(W / 2), Math.floor(H / 2))];
+            foods = [];
+            point = 0;
+            keyCode = 0;
+            speed = 200;
+
+            for (var i = 0; i < 10; i++) {
+                addFood();
+            }
+
+            addSpeedBoost();
+            addObstacle();
+
+            if (timer) clearInterval(timer);
+            timer = setInterval(tick, speed);
+            if (obstacleTimer) clearInterval(obstacleTimer);
+            obstacleTimer = setInterval(moveObstacle, 5000);
+            
+            window.onkeydown = keydown;
+        }
+
+        function addFood() {
+            while (true) {
+                var x = Math.floor(Math.random() * W);
+                var y = Math.floor(Math.random() * H);
+                if (isHit(foods, x, y) || isHit(snake, x, y) || isHit([speedBoost, obstacle], x, y)) continue;
+                foods.push(new Point(x, y));
+                break;
+            }
+        }
+
+        function addSpeedBoost() {
+            while (true) {
+                var x = Math.floor(Math.random() * W);
+                var y = Math.floor(Math.random() * H);
+                if (isHit(foods, x, y) || isHit(snake, x, y) || isHit([obstacle], x, y)) continue;
+                speedBoost = new Point(x, y);
+                break;
+            }
+        }
+
+        function addObstacle() {
+            while (true) {
+                var x = Math.floor(Math.random() * W);
+                var y = Math.floor(Math.random() * H);
+                if (isHit(foods, x, y) || isHit(snake, x, y) || isHit([speedBoost], x, y)) continue;
+                obstacle = new Point(x, y);
+                break;
+            }
+        }
+
+        function moveObstacle() {
+            addObstacle();
+        }
+
+        function isHit(data, x, y) {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i] && data[i].x === x && data[i].y === y) return true;
+            }
+            return false;
+        }
+
+        function tick() {
+            var x = snake[0].x;
+            var y = snake[0].y;
+
+            switch (keyCode) {
+                case 37: x--; break;
+                case 38: y--; break;
+                case 39: x++; break;
+                case 40: y++; break;
+                default: paint(); return;
+            }
+
+            if (x < 0) x = W - 1;
+            if (x >= W) x = 0;
+            if (y < 0) y = H - 1;
+            if (y >= H) y = 0;
+
+            if (isHit(snake, x, y)) {
+                clearInterval(timer);
+                alert("Game Over! Your score: " + point);
+                init();
+                return;
+            }
+
+            snake.unshift(new Point(x, y));
+
+            if (isHit(foods, x, y)) {
+                point += 10;
+                foods = foods.filter(p => p.x !== x || p.y !== y);
+                addFood();
+                if (point % 50 === 0) {
+                    speed = Math.max(50, speed - 20);
+                    clearInterval(timer);
+                    timer = setInterval(tick, speed);
+                }
+            } else if (speedBoost && speedBoost.x === x && speedBoost.y === y) {
+                point += 30;
+                speed = Math.max(50, speed - 10);
+                clearInterval(timer);
+                timer = setInterval(tick, speed);
+                addSpeedBoost();
+            } else if (obstacle && obstacle.x === x && obstacle.y === y) {
+                alert("Hit obstacle! Snake length reset!");
+                snake = [snake[0]]; // 長さを1にリセット
+            } else {
+                snake.pop();
+            }
+
+            paint();
+        }
+
+        function paint() {
+            ctx.clearRect(0, 0, W * S, H * S);
+            ctx.fillStyle = "rgb(0,0,0)";
+            ctx.fillText("Score: " + point, S, S * 2);
+
+            ctx.fillStyle = "rgb(0,128,0)";
+            foods.forEach(p => ctx.fillRect(p.x * S, p.y * S, S, S));
+
+            if (speedBoost) {
+                ctx.fillStyle = "rgb(255,165,0)";
+                ctx.fillRect(speedBoost.x * S, speedBoost.y * S, S, S);
+            }
+
+            if (obstacle) {
+                ctx.fillStyle = "rgb(255,0,0)";
+                ctx.fillRect(obstacle.x * S, obstacle.y * S, S, S);
+            }
+
+            ctx.fillStyle = "rgb(0,0,255)";
+            snake.forEach(p => ctx.fillRect(p.x * S, p.y * S, S, S));
+        }
+
+        function keydown(event) {
+            var newKey = event.keyCode;
+            if ((newKey === 37 && keyCode !== 39) ||
+                (newKey === 38 && keyCode !== 40) ||
+                (newKey === 39 && keyCode !== 37) ||
+                (newKey === 40 && keyCode !== 38)) {
+                keyCode = newKey;
+            }
+        }
+    </script>
+</head>
+<body onload="init()">
+    <canvas id="field" width="400" height="400" style="background:#cccccc"></canvas>
+</body>
+</html>

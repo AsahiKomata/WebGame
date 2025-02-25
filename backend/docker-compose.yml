@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  backend:
+    build: .
+    container_name: backend  # ← コンテナ名を固定
+    working_dir: /app        # ← 作業ディレクトリを /app に設定
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./app/public:/app/public  # ← 追加！publicフォルダを同期
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

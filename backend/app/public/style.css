@@ -1,0 +1,113 @@
+body {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    padding: 10px;
+}
+
+#game-area {
+    display: flex;
+    justify-content: space-around;
+    width: 75%;
+    height: 60vh;
+    max-width: 400px;
+    max-height: 500px;
+    background-color: lightgray;
+    margin: auto;
+    position: relative;
+    padding: 0;
+    border: 1px solid black;
+}
+
+.lane {
+    flex: 1;
+    width: 25%;
+    height: 100%;
+    max-width: 100px;
+    background: #ccc;
+    border: 1px solid black;
+    position: relative;
+}
+
+.lane.selected {
+    background: lightblue;
+}
+
+.number {
+    position: absolute;
+    width: 75%;
+    max-width: 60px;
+    max-height: 60px;
+    color: white;
+    border-radius: 0;
+    text-align: center;
+    font-weight: bold;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.buttons {
+    margin-top: 20px;
+    display: flex;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#change-all-btn {
+    padding: 0;
+    margin: 5px;
+    background-image: url('images/change.png');
+    background-size: cover;
+    background-position: center;
+    border: 1px solid black;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+    box-shadow: 0px 5px 0px rgba(0, 0, 0, 0.3), 0px 7px 10px rgba(0, 0, 0, 0.2);
+}
+
+.factor-btn {
+    padding: 0;
+    margin: 5px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgb(13, 214, 174);
+    cursor: pointer;
+    transition: background 0.3s;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3), 0px 7px 10px rgba(0, 0, 0, 0.2);
+}
+
+#change-all-btn:hover,
+.factor-btn:hover {
+    background-color: rgb(19, 247, 99);
+}
+
+#change-all-btn:active {
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), 0px 3px 5px rgba(0, 0, 0, 0.2);
+    transform: translateY(3px);
+}
+
+.score-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 10px;
+}
+
+.score-container h2 {
+    margin: 5px 0;
+    line-height: 1.2;
+}
+
+.result-effect {
+    position: absolute;
+    opacity: 1;
+    transition: opacity 1s ease-out, transform 1s ease-out;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.result-effect.fade-out {
+    opacity: 0;
+    transform: translateY(-20px);
+}
