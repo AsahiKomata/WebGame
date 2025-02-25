@@ -122,8 +122,22 @@ body {
 }
 
 .score-container h2 {
+    display: flex;
     margin: 5px 0;
+    justify-content: flex-start;
+    align-items: center;
     line-height: 1.2;
+    width: 100%;
+}
+
+#score {
+    margin-left: auto;
+    font-weight: bold;
+}
+
+#level {
+    margin-right: auto;
+    font-weight: bold;
 }
 
 .result-effect {

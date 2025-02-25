@@ -12,13 +12,13 @@ const lastPositions = new Array(lanes.length).fill(0);
 const numbersList = [
     [6, 8, 10, 12, 15, 20, 24, 30], // レベル1のリスト
     [10, 12, 14, 15, 18, 20, 21, 24, 28, 30, 35, 36, 40, 42, 48, 56, 60], // レベル２のリスト
-    [30, 35, 40, 42, 45, 48, 54, 56, 60, 63, 70, 72, 80, 84, 90, 96, 105, 108, 112, 120] // レベル３のリスト
+    [30, 35, 40, 42, 45, 48, 54, 56, 63, 70, 72, 80, 90, 96, 105, 108, 120, 126, 135, 140] // レベル３のリスト
 ];
 
 const factorsList = [
     [2, 3, 4, 5], // レベル1の因数リスト
     [2, 3, 4, 5, 6, 7], // レベル２の因数リスト
-    [2, 3, 5, 6, 7, 8, 9]  // レベル3の因数リスト
+    [3, 5, 6, 7, 8, 9]  // レベル3の因数リスト
 ];
 
 let currentNumbers = numbersList[0]; // 現在の数字リスト（初期）
@@ -49,6 +49,9 @@ function changeLevel(level) {
     // 新しいレベルのクラスを追加
     currentLevel = level;
     gameArea.classList.add(`level${currentLevel}`);
+
+    // レベル表示を更新
+    document.getElementById("level").innerText = "レベル:" + currentLevel;
 
     // 画面上の数字を全削除
     clearAllNumbers();
@@ -90,7 +93,7 @@ function setButtonSizes() {
  */
 function updateScore(points) {
     score += points;
-    document.getElementById("score").innerText = score;
+    document.getElementById("score").innerText = "スコア:" + score;
 
     // スコアが閾値１を超えたらレベル２のリストに切り替え
     if (score > threshold1 && currentNumbers === numbersList[0]) {
@@ -115,7 +118,7 @@ function updateScore(points) {
 function updateAccuracy() {
     let totalAttempts = correctCount + wrongCount;
     let accuracy = totalAttempts > 0 ? (correctCount / totalAttempts) * 100 : 0;
-    document.getElementById("accuracy").innerText = accuracy.toFixed(2);
+    document.getElementById("accuracy").innerText = accuracy.toFixed(2) + "%";
 }
 
 /**
