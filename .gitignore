@@ -282,3 +282,6 @@ pyrightconfig.json
 !class_diagram.png
 
 node_modules/
+
+!package-lock.json
+!package.json
