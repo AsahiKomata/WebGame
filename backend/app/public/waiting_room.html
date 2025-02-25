@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待機所</title>
+    <link rel="stylesheet" href="waiting_room_style.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="waiting-room">
+    <div class="container">
+        <h1>待機所</h1>
+
+        <!-- プレイヤー名入力フォーム -->
+        <div class="input-area">
+            <input type="text" id="username" placeholder="ユーザー名を入力">
+            <button onclick="join()">参加</button>
+        </div>
+
+        <!-- 参加プレイヤーリスト -->
+        <h2>現在のプレイヤー</h2>
+        <ul id="playerList"></ul>
+
+        <!-- 👇 管理者だけが見えるゲーム開始ボタン -->
+        <button id="startGameBtn" onclick="startGame()" style="display: none;">ゲーム開始</button>
+    </div>
+
+    <script>
+        const socket = io();
+        let isAdmin = false; // 管理者かどうかを判定
+
+        function join() {
+            const username = document.getElementById("username").value;
+            if (username) {
+                socket.emit("joinWaitingRoom", username);
+            }
+        }
+
+        socket.on("updatePlayerList", (players) => {
+            const playerList = document.getElementById("playerList");
+            playerList.innerHTML = "";
+            players.forEach(player => {
+                const li = document.createElement("li");
+                li.textContent = player;
+                playerList.appendChild(li);
+            });
+        });
+
+        // 🎮 管理者のみゲーム開始ボタンを有効化
+        socket.on("setAsAdmin", () => {
+            isAdmin = true;
+            document.getElementById("startGameBtn").style.display = "block"; // ボタンを表示
+        });
+
+        function startGame() {
+            if (isAdmin) {
+                socket.emit("startGame");
+            } else {
+                alert("管理者のみゲームを開始できます！");
+            }
+        }
+
+        socket.on("redirectToGame", () => {
+            const username = document.getElementById("username").value;
+            if (username) {
+                window.location.href = `/game?user=${encodeURIComponent(username)}`;
+            }
+        });
+    </script>
+</body>
+</html>
