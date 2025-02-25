@@ -1,22 +1,24 @@
 const lanes = document.querySelectorAll(".lane");
 const factorButtons = document.querySelectorAll(".factor-btn");
 const changeAllButton = document.getElementById("change-all-btn");
+const gameArea = document.getElementById("game-area");
 
 const lane = document.querySelector('.lane');
 const laneHeight = lane.offsetHeight;
 const laneWidth = lane.offsetWidth;
+const lastPositions = new Array(lanes.length).fill(0);
 
 // スコアによって切り替える数字と因数のリストを3つ用意
 const numbersList = [
-    [6, 8, 10, 12, 15, 18, 20, 24, 30], // 初期リスト
-    [10, 12, 15, 18, 20, 24, 30, 35, 40], // 2回目のリスト（スコアが1000を超えた場合）
-    [15, 18, 20, 24, 30, 35, 40, 50, 60] // 3回目のリスト（スコアが2000を超えた場合）
+    [6, 8, 10, 12, 15, 20, 24, 30], // レベル1のリスト
+    [10, 12, 14, 15, 18, 20, 21, 24, 28, 30, 35, 36, 40, 42, 48, 56, 60], // レベル２のリスト
+    [30, 35, 40, 42, 45, 48, 54, 56, 63, 70, 72, 80, 90, 96, 105, 108, 120, 126, 135, 140] // レベル３のリスト
 ];
 
 const factorsList = [
-    [2, 3, 4, 5], // 初期因数リスト
-    [3, 4, 5, 6], // 2回目の因数リスト（スコアが1000を超えた場合）
-    [4, 5, 6, 7]  // 3回目の因数リスト
+    [2, 3, 4, 5], // レベル1の因数リスト
+    [2, 3, 4, 5, 6, 7], // レベル２の因数リスト
+    [3, 5, 6, 7, 8, 9]  // レベル3の因数リスト
 ];
 
 let currentNumbers = numbersList[0]; // 現在の数字リスト（初期）
@@ -24,14 +26,38 @@ let currentFactors = factorsList[0]; // 現在の因数リスト（初期）
 
 let score = 0;       // スコア管理
 let activeLane = null; // 現在選択中のレーン
-let fallSpeed = setFallSpeed(); // 数字の落下速度
+let normalFallSpeed = setFallSpeed(); // 通常の数字の落下速度
+let fastFallSpeed = normalFallSpeed * 1.5; // 速い数字の落下速度
 let spawnInterval = 2000; // 数字の生成間隔(ms)
 let lastSpawnedLane = null; // 最後に数字を落としたレーン
 let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
 let correctCount = 0; // 正解数
 let wrongCount = 0; // 誤答数
-let threshold1 = 200; // スコアのしきい値1
-let threshold2 = 400; // スコアのしきい値2
+let threshold1 = 10; // スコアのしきい値1
+let threshold2 = 200; // スコアのしきい値2
+let currentLevel = 1; // 現在のレベル
+let point = 100; // 1つの数字を消すと得られるポイントの最大値
+
+/**
+ * レベルを変更する関数
+ * @param {number} level - 変更するレベル
+ */
+function changeLevel(level) {
+    // 現在のレベルをリセット
+    gameArea.classList.remove(`level${currentLevel}`);
+
+    // 新しいレベルのクラスを追加
+    currentLevel = level;
+    gameArea.classList.add(`level${currentLevel}`);
+
+    // レベル表示を更新
+    document.getElementById("level").innerText = "レベル:" + currentLevel;
+
+    // 画面上の数字を全削除
+    clearAllNumbers();
+
+    point = point * currentLevel;
+}
 
 /**
  * 落下速度を設定する関数
@@ -67,20 +93,22 @@ function setButtonSizes() {
  */
 function updateScore(points) {
     score += points;
-    document.getElementById("score").innerText = score;
+    document.getElementById("score").innerText = "スコア:" + score;
 
-    // スコアが閾値１を超えたら2回目のリストに切り替え
+    // スコアが閾値１を超えたらレベル２のリストに切り替え
     if (score > threshold1 && currentNumbers === numbersList[0]) {
         currentNumbers = numbersList[1];
         currentFactors = factorsList[1];
         updateAllButtonFactors(); // ボタンの因数を再設定
+        changeLevel(2);
     }
 
-    // スコアが閾値２を超えたら3回目のリストに切り替え
+    // スコアが閾値２を超えたらレベル３のリストに切り替え
     if (score > threshold2 && currentNumbers === numbersList[1]) {
         currentNumbers = numbersList[2];
         currentFactors = factorsList[2];
         updateAllButtonFactors(); // ボタンの因数を再設定
+        changeLevel(3);
     }
 }
 
@@ -90,7 +118,7 @@ function updateScore(points) {
 function updateAccuracy() {
     let totalAttempts = correctCount + wrongCount;
     let accuracy = totalAttempts > 0 ? (correctCount / totalAttempts) * 100 : 0;
-    document.getElementById("accuracy").innerText = accuracy.toFixed(2);
+    document.getElementById("accuracy").innerText = accuracy.toFixed(2) + "%";
 }
 
 /**
@@ -111,6 +139,26 @@ function setNumberSize(numElem) {
 }
 
 /**
+ * 特定のレーンの一番上の数字の位置を取得する関数
+ * @param {HTMLElement} lane - 対象のレーン
+ * @return {number|null} 一番上の数字のY座標またはnull
+ */
+function getTopNumberPositionForLane(lane) {
+    const numbersInLane = lane.querySelectorAll(".number");
+    if (numbersInLane.length === 0) return null;
+
+    // レーン内の一番上の数字の位置を取得
+    let minTop = Infinity;
+    numbersInLane.forEach(num => {
+        const top = parseFloat(num.style.top);
+        if (top < minTop) {
+            minTop = top;
+        }
+    });
+    return minTop;
+}
+
+/**
  * ランダムなレーンに数字を生成する関数
  */
 function spawnNumber() {
@@ -121,34 +169,57 @@ function spawnNumber() {
     const lane = lanes[laneIndex];
 
     const num = document.createElement("div");
+    let isFast = false;
+    if (currentLevel >= 2) {
+        const fastProbability = currentLevel === 2 ? 0.2 : 0.4; // レベル2 : レベル3
+        if (Math.random() < fastProbability && getTopNumberPositionForLane(lane) > laneHeight / 2) {
+            isFast = true;
+            num.style.color = "red";
+        }
+    }
     num.classList.add("number");
-    num.innerText = currentNumbers[Math.floor(Math.random() * currentNumbers.length)]; // 現在の数字リストから選択
-    if (score < threshold1) {
-        num.style.background = "rgb(212, 36, 80)";
-    }
-    if (score > threshold1 && score < threshold2) {
-        num.style.background = "rgb(255, 215, 0)";
-    }
-    if (score > threshold2) {
-        num.style.background = "rgb(0, 128, 0)";
-    }
+    num.innerText = currentNumbers[Math.floor(Math.random() * currentNumbers.length)];
+
+    // レベルに応じたデザイン適用
+    setNumberAppearance(num, currentLevel, isFast);
+
     lane.appendChild(num);
 
     // 数字のサイズを設定
     setNumberSize(num);
 
-    fallDown(num, laneIndex);
+    fallDown(num, laneIndex, isFast);
 
     lastSpawnedLane = laneIndex;
+}
+
+/**
+ * スコアに応じて数字の見た目を変更
+ * @param {HTMLElement} num - 数字の要素
+ * @param {number} level - 現在のレベル
+ * @param {boolean} isFast - 速い数字かどうか
+ */
+function setNumberAppearance(num, level, isFast) {
+    if (level == 1) {
+        num.style.background = "rgb(212, 36, 80)";
+    } else if (level == 2 && !isFast) {
+        num.style.backgroundImage = "url('images/bird.png')";
+    } else if (level == 3 && !isFast) {
+        num.style.backgroundImage = "url('images/kaseijin.png')";
+    } else if (level == 3 && isFast) {
+        num.style.backgroundImage = "url('images/ufo.png')";
+    }
 }
 
 /**
  * 数字を落下させる関数
  * @param {HTMLElement} num - 落下する数字の要素
  * @param {number} laneIndex - 落下するレーンのインデックス
+ * @param {boolean} isFast - 速い数字かどうか
  */
-function fallDown(num, laneIndex) {
+function fallDown(num, laneIndex, isFast = false) {
     let pos = 0;
+    const fallSpeed = isFast ? fastFallSpeed : normalFallSpeed;
     const fallInterval = setInterval(() => {
         if (pos < laneHeight - laneWidth * 0.75) {
             pos += fallSpeed;
@@ -156,8 +227,8 @@ function fallDown(num, laneIndex) {
         } else {
             clearInterval(fallInterval);
             fallIntervals.delete(num); // 落下アニメーションを削除
-            // num.remove(); // 数字を削除
-            checkAndClearAllNumbers(); // 全削除するかチェック
+            num.remove(); // 数字を削除
+            // checkAndClearAllNumbers(); // 全削除するかチェック
         }
     }, 5);
 
@@ -227,7 +298,7 @@ function divideNumber(factor, laneIndex) {
 
         if (num === 1) { // 1になったら削除しスコアを加算
             let positionRatio = topPosition / laneHeight; // 数字の現在位置の割合
-            let score = Math.max(50, Math.floor(200 - (positionRatio * 150)));
+            let score = Math.max(50, Math.floor(point - (positionRatio * 150)));
             updateScore(score); // スコア加算
             clearInterval(fallIntervals.get(numElem)); // 落下アニメーションを停止
             fallIntervals.delete(numElem);
@@ -244,33 +315,6 @@ function divideNumber(factor, laneIndex) {
         showResultEffect(numElem, "images/wrong.png");
         playSound(false);
     }
-}
-
-/**
- * ボタンに因数を設定する関数
- * @param {HTMLElement} button - 更新するボタン
- */
-function updateButtonFactor(button) {
-    // 画面上に現在表示されている因数をカウント
-    const currentFactorsOnButtons = Array.from(factorButtons).map(btn => parseInt(btn.innerText));
-    const factorCounts = {};
-
-    // 各因数の出現回数をカウント
-    currentFactorsOnButtons.forEach(f => {
-        factorCounts[f] = (factorCounts[f] || 0) + 1;
-    });
-
-    // 選択可能な因数のリスト（現在の因数が2回未満のもの）
-    const availableFactors = currentFactors.filter(f => (factorCounts[f] || 0) < 2);
-
-    // 選択可能な因数がない場合は変更しない
-    if (availableFactors.length === 0) return;
-
-    // ランダムに新しい因数を選択
-    const selectedFactor = availableFactors[Math.floor(Math.random() * availableFactors.length)];
-
-    // ボタンに設定
-    button.innerText = selectedFactor;
 }
 
 /**
@@ -296,24 +340,64 @@ function getBottomNumberForLane(lane) {
 }
 
 /**
+ * ボタンに因数を設定する関数
+ * @param {HTMLElement} button - 更新するボタン
+ */
+function updateButtonFactor(button) {
+    if (currentLevel === 1) {
+        // レベル1の場合は因数は固定
+        const factorIndex = Array.from(factorButtons).indexOf(button);
+        button.innerText = currentFactors[factorIndex];
+    } else {
+        // 画面上に現在表示されている因数をカウント
+        const currentFactorsOnButtons = Array.from(factorButtons).map(btn => parseInt(btn.innerText));
+        const factorCounts = {};
+
+        // 各因数の出現回数をカウント
+        currentFactorsOnButtons.forEach(f => {
+            factorCounts[f] = (factorCounts[f] || 0) + 1;
+        });
+
+        // 選択可能な因数のリスト（現在の因数が1回未満のもの）
+        const availableFactors = currentFactors.filter(f => (factorCounts[f] || 0) < 1);
+
+        // 選択可能な因数がない場合は変更しない
+        if (availableFactors.length === 0) return;
+
+        // ランダムに新しい因数を選択
+        const selectedFactor = availableFactors[Math.floor(Math.random() * availableFactors.length)];
+
+        // ボタンに設定
+        button.innerText = selectedFactor;
+    }
+}
+
+/**
  * すべての因数ボタンを更新する関数
  */
 function updateAllButtonFactors() {
-    let selectedFactors = [];
+    if (currentLevel === 1) {
+        // レベル1の場合は因数は固定
+        factorButtons.forEach((button, index) => {
+            button.innerText = currentFactors[index];
+        });
+    } else {
+        let selectedFactors = [];
 
-    while (selectedFactors.length < factorButtons.length) {
-        let factor = currentFactors[Math.floor(Math.random() * currentFactors.length)];
+        while (selectedFactors.length < factorButtons.length) {
+            let factor = currentFactors[Math.floor(Math.random() * currentFactors.length)];
 
-        // 同じ因数が3つ以上にならないようにする
-        if (selectedFactors.filter(f => f === factor).length < 2) {
-            selectedFactors.push(factor);
+            // 同じ因数が2つ以上にならないようにする
+            if (selectedFactors.filter(f => f === factor).length < 1) {
+                selectedFactors.push(factor);
+            }
         }
-    }
 
-    // すべてのボタンに適用
-    factorButtons.forEach((button, index) => {
-        button.innerText = selectedFactors[index];
-    });
+        // すべてのボタンに適用
+        factorButtons.forEach((button, index) => {
+            button.innerText = selectedFactors[index];
+        });
+    }
 }
 
 /**
@@ -349,7 +433,7 @@ function animateFactorButton(button, factor) {
 
     // 移動距離を計算
     const deltaX = targetRect.left - buttonRect.left;
-    const deltaY = targetRect.top - buttonRect.top + fallSpeed * 12;
+    const deltaY = targetRect.top - buttonRect.top + normalFallSpeed * 12;
 
     // ボタン移動アニメーション
     button.style.transition = "transform 0.5s ease-in-out, opacity 0.3s ease-in-out";
@@ -448,6 +532,7 @@ factorButtons.forEach((button, index) => {
  * 初期化処理
  */
 function initializeGame() {
+    changeLevel(1);
     setButtonSizes();
     spawnNumber();
     setInterval(spawnNumber, spawnInterval);
