@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スコアランキング</title>
+    <link rel="stylesheet" href="ranking_style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🏆 スコアランキング</h1>
+        <ul id="rankingList" class="ranking-list"></ul>
+    </div>
+
+    <script>
+        async function fetchRanking() {
+            try {
+                const response = await fetch('/getRanking');
+                const rankingData = await response.json();
+
+                const rankingList = document.getElementById('rankingList');
+                rankingList.innerHTML = "";
+
+                rankingData.forEach((player, index) => {
+                    const li = document.createElement("li");
+                    li.classList.add("ranking-item");
+                    if (index === 0) li.classList.add("first-place");
+                    else if (index === 1) li.classList.add("second-place");
+                    else if (index === 2) li.classList.add("third-place");
+
+                    li.innerHTML = `<span class="rank">${index + 1}位</span> <span class="name">${player.username}</span> <span class="score">${player.score}点</span>`;
+                    rankingList.appendChild(li);
+                });
+            } catch (error) {
+                console.error("ランキングデータの取得に失敗しました:", error);
+            }
+        }
+
+        fetchRanking();
+    </script>
+</body>
+</html>
