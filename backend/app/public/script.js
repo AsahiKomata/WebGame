@@ -110,6 +110,13 @@ function updateScore(points) {
         updateAllButtonFactors(); // ボタンの因数を再設定
         changeLevel(3);
     }
+
+    document.getElementById("score").textContent = `スコア: ${points} 点`;
+
+    const username = new URLSearchParams(window.location.search).get('user');
+    if (username) {
+        sendScore(username, points);
+    }
 }
 
 /**
@@ -307,7 +314,7 @@ function divideNumber(factor, laneIndex) {
             numElem.innerText = num; // 更新
         }
     } else {
-        updateScore(-factor); // 間違った場合スコアを減らす
+        /*updateScore(-factor); // 間違った場合スコアを減らす*/
 
         wrongCount++;
         updateAccuracy();
