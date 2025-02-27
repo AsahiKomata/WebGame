@@ -12,7 +12,7 @@ RUN npm install
 COPY . .
 
 # ポートを開放
-EXPOSE 3000
+EXPOSE 80
 
 # アプリを起動
 CMD ["node", "server.js"]
