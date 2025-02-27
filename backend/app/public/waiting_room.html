@@ -28,8 +28,11 @@
     <script>
         const socket = io();
         let isAdmin = false; // 管理者かどうかを判定
+        let isJoined = false; // 参加済みかどうか判定
+        let username = ""; // ユーザー名を保持
 
         function join() {
+
             const username = document.getElementById("username").value;
             if (username) {
                 socket.emit("joinWaitingRoom", username);
