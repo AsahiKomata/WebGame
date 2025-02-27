@@ -24,7 +24,7 @@ const factorsList = [
 let currentNumbers = numbersList[0]; // 現在の数字リスト（初期）
 let currentFactors = factorsList[0]; // 現在の因数リスト（初期）
 
-let score = 0;       // スコア管理
+let score = 0; // スコア管理
 let activeLane = null; // 現在選択中のレーン
 let normalFallSpeed = setFallSpeed(); // 通常の数字の落下速度
 let fastFallSpeed = normalFallSpeed * 1.5; // 速い数字の落下速度
@@ -56,7 +56,7 @@ function changeLevel(level) {
     // 画面上の数字を全削除
     clearAllNumbers();
 
-    point = point * currentLevel;
+    point = 100 * currentLevel;
 }
 
 /**
@@ -232,8 +232,8 @@ function fallDown(num, laneIndex, isFast = false) {
         } else {
             clearInterval(fallInterval);
             fallIntervals.delete(num); // 落下アニメーションを削除
-            num.remove(); // 数字を削除
-            // checkAndClearAllNumbers(); // 全削除するかチェック
+            // num.remove(); // 数字を削除
+            checkAndClearAllNumbers(); // 全削除するかチェック
         }
     }, 5);
 
