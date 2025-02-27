@@ -32,8 +32,8 @@ io.on('connection', (socket) => {
             waitingPlayers.push({ username, socketId: socket.id });
         }
     
-        // 最初のプレイヤーを管理者に設定
-        if (adminSocketId === null) {
+        // "admin" のユーザーがいた場合、管理者として設定
+        if (username === "admin") {
             adminSocketId = socket.id;
             io.to(socket.id).emit("setAsAdmin");
             console.log(`👑 ${username} が管理者になりました！`);
@@ -86,12 +86,6 @@ io.on('connection', (socket) => {
         // 管理者が切断した場合、新しい管理者を選ぶ
         if (socket.id === adminSocketId) {
             adminSocketId = null;
-            if (waitingPlayers.length > 0) {
-                const newAdmin = waitingPlayers[0].socketId; // 次のプレイヤーを管理者に
-                adminSocketId = newAdmin.socketId;
-                io.to(adminSocketId).emit("setAsAdmin");
-                console.log(`👑 新しい管理者が設定されました: ${newAdmin.username}`);
-            }
         }
     });
 });
