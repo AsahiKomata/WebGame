@@ -33,7 +33,7 @@ let lastSpawnedLane = null; // 最後に数字を落としたレーン
 let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
 let correctCount = 0; // 正解数
 let wrongCount = 0; // 誤答数
-let threshold1 = 50; // スコアのしきい値1
+let threshold1 = 10; // スコアのしきい値1
 let threshold2 = 200; // スコアのしきい値2
 let currentLevel = 1; // 現在のレベル
 let point = 100; // 1つの数字を消すと得られるポイントの最大値
@@ -56,7 +56,7 @@ function changeLevel(level) {
     // 画面上の数字を全削除
     clearAllNumbers();
 
-    point = point * currentLevel;
+    point = 100 * currentLevel;
 }
 
 /**
