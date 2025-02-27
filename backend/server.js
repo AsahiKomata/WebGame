@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
             setTimeout(() => {
                 console.log("⏳ ゲーム終了！");
                 io.emit("gameOver", playerScores); // クライアントに通知, スコアを送信
-            }, 0.5 * 60 * 1000); // 2分後
+            }, 2 * 60 * 1000); // 2分後
 
         } else {
             console.log("⚠ 管理者以外はゲームを開始できません！");
@@ -96,7 +96,7 @@ io.on('connection', (socket) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 80;
 
 // **🔍 ローカルIPアドレスを取得**
 const getLocalIP = () => {
