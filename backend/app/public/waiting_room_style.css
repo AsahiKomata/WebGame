@@ -57,6 +57,8 @@ button:hover {
 button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+    opacity: 0.5; /* 半透明にする */
+    pointer-events: none; /* クリックを完全無効化 */
 }
 
 /* プレイヤーリスト */
