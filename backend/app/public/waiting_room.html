@@ -32,10 +32,20 @@
         let username = ""; // ユーザー名を保持
 
         function join() {
+            if (isJoined) return; // すでに参加していたら処理しない
+        
+            const usernameInput = document.getElementById("username");
+            const joinButton = document.getElementById("joinButton");
 
-            const username = document.getElementById("username").value;
+            const username = usernameInput.value;
             if (username) {
                 socket.emit("joinWaitingRoom", username);
+                isJoined = true; // 参加済みフラグを立てる
+
+                // 🎯 参加後は名前変更不可＆ボタン無効化
+                usernameInput.disabled = true;
+                joinButton.disabled = true;
+                //joinButton.style.display = "none"; // 完全にボタンを消す場合
             }
         }
 
