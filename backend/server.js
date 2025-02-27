@@ -107,7 +107,7 @@ const getLocalIP = () => {
 
 // **🎮 ゲーム画面を提供**
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'waiting_room.html'));
+    res.sendFile(path.join(__dirname, 'public', 'rules.html'));
 });
 
 app.get('/game', (req, res) => {
