@@ -37,6 +37,7 @@ let threshold1 = 750; // スコアのしきい値1
 let threshold2 = 2500; // スコアのしきい値2
 let currentLevel = 1; // 現在のレベル
 let point = 100; // 1つの数字を消すと得られるポイントの最大値
+let nIntervId; // intervalIDを保存する変数
 
 /**
  * レベルを変更する関数
@@ -101,8 +102,11 @@ function updateScore(points) {
         currentFactors = factorsList[1];
         updateAllButtonFactors(); // ボタンの因数を再設定
         changeLevel(2);
+        clearInterval(nIntervId);
+        nIntervId = null;
         spawnInterval += 1000;
-        setInterval(spawnNumber, spawnInterval);
+        nIntervId = setInterval(spawnNumber, spawnInterval);
+        spawnNumber();
     }
 
     // スコアが閾値２を超えたらレベル３のリストに切り替え
@@ -111,8 +115,11 @@ function updateScore(points) {
         currentFactors = factorsList[2];
         updateAllButtonFactors(); // ボタンの因数を再設定
         changeLevel(3);
+        clearInterval(nIntervId);
+        nIntervId = null;
         spawnInterval += 1000;
-        setInterval(spawnNumber, spawnInterval);
+        nIntervId = setInterval(spawnNumber, spawnInterval);
+        spawnNumber();
     }
 
     const username = new URLSearchParams(window.location.search).get('user');
@@ -544,7 +551,7 @@ function initializeGame() {
     changeLevel(1);
     setButtonSizes();
     spawnNumber();
-    setInterval(spawnNumber, spawnInterval);
+    nIntervId = setInterval(spawnNumber, spawnInterval);
 
     factorButtons.forEach(button => {
         // ゲーム開始時にボタンに初期値を設定
