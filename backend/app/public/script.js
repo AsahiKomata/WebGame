@@ -28,13 +28,13 @@ let score = 0; // スコア管理
 let activeLane = null; // 現在選択中のレーン
 let normalFallSpeed = setFallSpeed(); // 通常の数字の落下速度
 let fastFallSpeed = normalFallSpeed * 1.5; // 速い数字の落下速度
-let spawnInterval = 2000; // 数字の生成間隔(ms)
+let spawnInterval = 1500; // 数字の生成間隔(ms)
 let lastSpawnedLane = null; // 最後に数字を落としたレーン
 let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
 let correctCount = 0; // 正解数
 let wrongCount = 0; // 誤答数
-let threshold1 = 10; // スコアのしきい値1
-let threshold2 = 200; // スコアのしきい値2
+let threshold1 = 750; // スコアのしきい値1
+let threshold2 = 2500; // スコアのしきい値2
 let currentLevel = 1; // 現在のレベル
 let point = 100; // 1つの数字を消すと得られるポイントの最大値
 
@@ -101,6 +101,8 @@ function updateScore(points) {
         currentFactors = factorsList[1];
         updateAllButtonFactors(); // ボタンの因数を再設定
         changeLevel(2);
+        spawnInterval += 1000;
+        setInterval(spawnNumber, spawnInterval);
     }
 
     // スコアが閾値２を超えたらレベル３のリストに切り替え
@@ -109,6 +111,8 @@ function updateScore(points) {
         currentFactors = factorsList[2];
         updateAllButtonFactors(); // ボタンの因数を再設定
         changeLevel(3);
+        spawnInterval += 1000;
+        setInterval(spawnNumber, spawnInterval);
     }
 
     const username = new URLSearchParams(window.location.search).get('user');
@@ -312,7 +316,7 @@ function divideNumber(factor, laneIndex) {
             numElem.innerText = num; // 更新
         }
     } else {
-        updateScore(-factor); // 間違った場合スコアを減らす
+        updateScore(-50); // 間違った場合スコアを減らす
 
         wrongCount++;
         updateAccuracy();
