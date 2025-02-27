@@ -38,6 +38,7 @@ let threshold2 = 2500; // スコアのしきい値2
 let currentLevel = 1; // 現在のレベル
 let point = 100; // 1つの数字を消すと得られるポイントの最大値
 let nIntervId; // intervalIDを保存する変数
+let fogFlag = true; // 霧のエフェクトのフラグ
 
 /**
  * レベルを変更する関数
@@ -532,6 +533,30 @@ function playSound(isCorrect) {
     const sound = document.getElementById(isCorrect ? "correctAnswerSound" : "wrongAnswerSound");
     sound.currentTime = 0; // 再生位置をリセット（連続再生時に途中再生を防ぐ）
     sound.play();
+}
+
+/**
+ * 霧のエフェクトを適用する関数
+ * @param {boolean} flag - 霧のエフェクトを適用するかどうか
+ */
+function applyFogEffect() {
+    const fogOverlay = document.getElementById("fog-overlay");
+
+    // フラグが立った場合
+    if (fogFlag) {
+        fogOverlay.style.opacity = 1; // 霧を表示
+    } else {
+        fogOverlay.style.opacity = 0; // 霧を非表示
+    }
+}
+
+/**
+ * 霧のエフェクトのフラグを設定する関数
+ * @param {boolean} status - 霧のエフェクトのフラグ
+ */
+function setFogFlag(status) {
+    fogFlag = status;
+    applyFogEffect();
 }
 
 /**

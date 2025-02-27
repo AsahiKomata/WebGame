@@ -152,3 +152,18 @@ body {
     opacity: 0;
     transform: translateY(-20px);
 }
+
+#fog-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background-image: url('images/fog.png');
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity 0.3s ease-in-out;
+}
