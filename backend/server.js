@@ -16,6 +16,7 @@ app.use(express.json());
 
 // **⚡ 待機中のプレイヤーリストを管理する変数**
 let waitingPlayers = [];
+let playerScores = {};
 let adminSocketId = null; // 管理者の socket.id を保存
 
 // **🚀 待機所のHTMLを提供**
@@ -46,14 +47,37 @@ io.on('connection', (socket) => {
         if (socket.id === adminSocketId) {
             console.log("🎮 ゲーム開始!");
             io.emit("redirectToGame");
+
+            // スコア初期化
+            playerScores = {};
+
+            // 2分後にゲーム終了
+            setTimeout(() => {
+                console.log("⏳ ゲーム終了！");
+                io.emit("gameOver", playerScores); // クライアントに通知, スコアを送信
+            }, 0.5 * 60 * 1000); // 2分後
+
         } else {
             console.log("⚠ 管理者以外はゲームを開始できません！");
         }
     });
 
+    // プレイヤーのスコアを更新
+    socket.on("updateScore", (username, score) => {
+        playerScores[username] = score;
+        console.log(`🏆 ${username} のスコアが更新: ${score}`);
+    });
+
     // **🔌 切断時の処理**
     socket.on("disconnect", () => {
         console.log(`❌ ユーザー切断: ${socket.id}`);
+
+        // 切断時にスコアを削除
+        for (const player in playerScores) {
+            if (playerScores[player] === socket.id) {
+                delete playerScores[player];
+            }
+        }
     
         // 切断したユーザーを waitingPlayers から削除
         waitingPlayers = waitingPlayers.filter(player => player.socketId !== socket.id);
@@ -94,6 +118,13 @@ app.get('/', (req, res) => {
 
 app.get('/game', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'game.html'));
+});
+
+app.get("/getRanking", (req, res) => {
+    const sortedRanking = Object.entries(playerScores)
+        .sort((a, b) => b[1] - a[1]) // スコアの高い順にソート
+        .map(([username, score]) => ({ username, score }));
+    res.json(sortedRanking);
 });
 
 // **🌍 外部アクセスを許可**
