@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゲームルール</title>
+    <link rel="stylesheet" href="rules_style.css">
+</head>
+<body>
+    <div class="rules-container">
+        <h1>ゲームのルール</h1>
+
+        <div class="rule">
+            <img src="screenshot1.png" alt="ゲーム開始画面">
+            <p>① 数字が上から落ちてきます。</p>
+        </div>
+
+        <div class="rule">
+            <img src="screenshot2.png" alt="因数分解の例">
+            <p>② 数字をタップして因数分解しましょう。</p>
+        </div>
+
+        <div class="rule">
+            <img src="screenshot3.png" alt="スコア計算の説明">
+            <p>③ 因数分解が成功するとスコアが加算されます！</p>
+        </div>
+
+        <button onclick="goToWaitingRoom()">OK！ゲーム開始</button>
+    </div>
+
+    <script>
+        function goToWaitingRoom() {
+            window.location.href = "/waiting_room.html";
+        }
+    </script>
+</body>
+</html>
