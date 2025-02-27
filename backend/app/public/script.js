@@ -24,7 +24,7 @@ const factorsList = [
 let currentNumbers = numbersList[0]; // 現在の数字リスト（初期）
 let currentFactors = factorsList[0]; // 現在の因数リスト（初期）
 
-let score = 0;       // スコア管理
+let score = 0; // スコア管理
 let activeLane = null; // 現在選択中のレーン
 let normalFallSpeed = setFallSpeed(); // 通常の数字の落下速度
 let fastFallSpeed = normalFallSpeed * 1.5; // 速い数字の落下速度
@@ -33,7 +33,7 @@ let lastSpawnedLane = null; // 最後に数字を落としたレーン
 let fallIntervals = new Map(); // 落下アニメーションを管理するマップ
 let correctCount = 0; // 正解数
 let wrongCount = 0; // 誤答数
-let threshold1 = 10; // スコアのしきい値1
+let threshold1 = 50; // スコアのしきい値1
 let threshold2 = 200; // スコアのしきい値2
 let currentLevel = 1; // 現在のレベル
 let point = 100; // 1つの数字を消すと得られるポイントの最大値
@@ -227,8 +227,8 @@ function fallDown(num, laneIndex, isFast = false) {
         } else {
             clearInterval(fallInterval);
             fallIntervals.delete(num); // 落下アニメーションを削除
-            num.remove(); // 数字を削除
-            // checkAndClearAllNumbers(); // 全削除するかチェック
+            // num.remove(); // 数字を削除
+            checkAndClearAllNumbers(); // 全削除するかチェック
         }
     }, 5);
 
