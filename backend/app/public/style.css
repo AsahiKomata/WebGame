@@ -34,7 +34,7 @@ body {
 
 /* レベル3の背景 - 宇宙 */
 .level3 {
-    background-image: url('images/space.png');
+    background-image: url('images/space2.png');
 }
 
 .lane {
@@ -129,6 +129,16 @@ body {
     line-height: 1.2;
     width: 100%;
 }
+
+#username-display {
+    margin-right: auto;
+    font-weight: bold;
+}
+
+/* #ranking { 
+    margin-left: auto;
+    font-weight: bold;
+}*/
 
 #score {
     margin-left: auto;

@@ -89,6 +89,19 @@ function setButtonSizes() {
     changeAllButton.style.height = `${newSize}px`;
 }
 
+/** 
+ * プレイヤー名表示関数
+ * 
+ */
+document.addEventListener("DOMContentLoaded", () => {
+    const username = new URLSearchParams(window.location.search).get('user');
+    if (username) {
+        const usernameDisplay = document.getElementById("username-display");
+        usernameDisplay.innerText = `${username}`;
+    }
+});
+
+
 /**
  * スコアを更新する関数
  * @param {number} points - 加算または減算するスコア
@@ -188,7 +201,7 @@ function spawnNumber() {
     const num = document.createElement("div");
     let isFast = false;
     if (currentLevel >= 2) {
-        const fastProbability = currentLevel === 2 ? 0.2 : 0.4; // レベル2 : レベル3
+        const fastProbability = currentLevel === 2 ? 1 : 1; // レベル2 : レベル3
         if (Math.random() < fastProbability && getTopNumberPositionForLane(lane) > laneHeight / 2) {
             isFast = true;
             num.style.color = "red";
@@ -221,6 +234,8 @@ function setNumberAppearance(num, level, isFast) {
         num.style.background = "rgb(212, 36, 80)";
     } else if (level == 2 && !isFast) {
         num.style.backgroundImage = "url('images/bird.png')";
+    } else if (level == 3 && isFast) {
+        num.style.backgroundImage = "url('images/jet.png')";
     } else if (level == 3 && !isFast) {
         num.style.backgroundImage = "url('images/kaseijin.png')";
     } else if (level == 3 && isFast) {
@@ -558,6 +573,23 @@ function setFogFlag(status) {
     fogFlag = status;
     applyFogEffect();
 }
+
+
+// スコア順に並べ替える関数
+function calculateRankings() {
+    return Object.entries(scores)
+        .sort((a, b) => b[1] - a[1]) // スコアが高い順にソート
+        .map(([username, score], index) => ({ username, score, rank: index + 1 }));
+}
+
+// 特定のユーザーの順位を取得する関数
+function getPlayerRank(username) {
+    const rankings = calculateRankings();
+    const playerRank = rankings.find(p => p.username === username);
+    return playerRank ? playerRank.rank : null;
+}
+
+
 
 /**
  * ボタンのクリックイベントを設定
