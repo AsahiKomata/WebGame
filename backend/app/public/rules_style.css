@@ -19,8 +19,10 @@ body {
 }
 
 .rule img {
-    width: 100%;  /* 画面幅に応じて調整 */
-    max-width: 300px;  /* 画面が大きすぎるときは300pxまで */
+    width: 100%;
+    /* 画面幅に応じて調整 */
+    max-width: 300px;
+    /* 画面が大きすぎるときは300pxまで */
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
@@ -34,8 +36,19 @@ button {
     border-radius: 5px;
     cursor: pointer;
     width: 100%;
+    margin: 10px 0;
 }
 
 button:hover {
     background-color: #0056b3;
+}
+
+#rulesText {
+    width: 80%;
+    margin: 20px auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    text-align: left;
+    display: none;
 }
