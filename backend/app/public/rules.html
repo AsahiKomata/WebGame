@@ -1,31 +1,64 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ゲームルール</title>
+    <title>因数分解ゲーム</title>
     <link rel="stylesheet" href="rules_style.css">
+
 </head>
+
 <body>
-    <div class="rules-container">
-        <h1>ゲームのルール</h1>
 
-        <div class="rule">
-            <img src="screenshot1.png" alt="ゲーム開始画面">
-            <p>① 数字が上から落ちてきます。</p>
-        </div>
+    <h1>因数分解ゲーム</h1>
+    <button id="showRules">ルールを見る</button>
+    <div id="rulesText"></div>
 
-        <div class="rule">
-            <img src="screenshot2.png" alt="因数分解の例">
-            <p>② 数字をタップして因数分解しましょう。</p>
-        </div>
+    <script>
+        document.getElementById('showRules').addEventListener('click', () => {
+            const rulesText = document.getElementById('rulesText');
 
-        <div class="rule">
-            <img src="screenshot3.png" alt="スコア計算の説明">
-            <p>③ 因数分解が成功するとスコアが加算されます！</p>
-        </div>
+            // すでに表示されていたら非表示にする
+            if (rulesText.style.display === "block") {
+                rulesText.style.display = "none";
+                return;
+            }
 
-        <button onclick="goToWaitingRoom()">OK！ゲーム開始</button>
+            // ルールをセットして表示
+            rulesText.innerHTML = `
+                <h2>ゲームのルール</h2>
+                <ol>
+                    <li>
+                        <strong>レーンを選択</strong><br>
+                        - 画面上部から数字がランダムに落ちてきます<br>
+                        - 数字はランダムなレーン（列）に配置されます
+                    </li>
+                    <li>
+                        <strong>因数で割る</strong><br>
+                        - 画面下部の因数ボタン（2, 3, 4, 5 など）を押すと,
+                          その因数でレーンの一番下の数字を割ることができます<br>
+                        - 割り切れた場合：<br>
+                          ・数字が小さくなります（最終的に「1」になったら消えます）<br>
+                          ・「1」になったときスコアが増えます（早く消すほど高得点です）<br>
+                        - 割り切れない場合：<br>
+                          ・スコアが減ります<br>
+                    </li>
+                    <li>
+                        <strong>レベルアップ</strong><br>
+                        - スコアが上がるとレベルが上がります<br>
+                        - レベルが上がると…<br>
+                          ・落ちてくる数字が大きくなります<br>
+                          ・因数ボタンの数字も大きくなります<br>
+                          ・速く落ちる数字が出てくるようになります
+                    </li>
+                </ol>
+            `;
+            rulesText.style.display = "block";
+        });
+    </script>
+
+    <button onclick="goToWaitingRoom()">OK！ゲーム開始</button>
     </div>
 
     <script>
@@ -34,4 +67,5 @@
         }
     </script>
 </body>
+
 </html>
